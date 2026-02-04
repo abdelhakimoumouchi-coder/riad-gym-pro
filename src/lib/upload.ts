@@ -39,10 +39,10 @@ export async function saveUploadedFile(
 
   // Get buffer from file
   let buffer: Buffer;
-  if (file instanceof Buffer) {
+  if (Buffer.isBuffer(file)) {
     buffer = file;
   } else {
-    const arrayBuffer = await file.arrayBuffer();
+    const arrayBuffer = await (file as File).arrayBuffer();
     buffer = Buffer.from(arrayBuffer);
   }
 
