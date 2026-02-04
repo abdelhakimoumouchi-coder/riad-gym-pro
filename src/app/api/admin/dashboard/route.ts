@@ -79,7 +79,7 @@ export async function GET() {
       SELECT 
         TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') as month,
         SUM(total)::float as revenue
-      FROM orders
+      FROM "orders"
       WHERE status = 'DELIVERED'
         AND "createdAt" >= NOW() - INTERVAL '12 months'
       GROUP BY DATE_TRUNC('month', "createdAt")
