@@ -224,7 +224,9 @@ export default function EditProduct() {
         isPack: formData.isPack,
         metaTitle: formData.metaTitle,
         metaDescription: formData.metaDescription,
-        publishedAt: formData.published ? new Date().toISOString() : null,
+        publishedAt: formData.published 
+          ? (product?.publishedAt || new Date().toISOString())
+          : null,
         images: allImages,
         thumbnail: allImages[0] || null,
       };
