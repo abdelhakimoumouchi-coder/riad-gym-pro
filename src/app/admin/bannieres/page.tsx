@@ -159,19 +159,27 @@ export default function BannersManagement() {
         throw new Error('L\'image est obligatoire');
       }
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('subtitle', formData.subtitle);
-      formDataToSend.append('link', formData.link);
-      formDataToSend.append('buttonText', formData.buttonText);
-      formDataToSend.append('isActive', formData.isActive.toString());
-      formDataToSend.append('order', formData.order.toString());
-      formDataToSend.append('startDate', formData.startDate);
-      formDataToSend.append('endDate', formData.endDate);
-      
+      // Convert image to base64 if new image is uploaded
+      let imageUrl = editingBanner?.image || '';
       if (imageFile) {
-        formDataToSend.append('image', imageFile);
+        imageUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(imageFile);
+        });
       }
+
+      const payload = {
+        title: formData.title,
+        subtitle: formData.subtitle,
+        image: imageUrl,
+        link: formData.link,
+        buttonText: formData.buttonText,
+        isActive: formData.isActive,
+        order: formData.order,
+        startDate: formData.startDate || null,
+        endDate: formData.endDate || null,
+      };
 
       const url = editingBanner
         ? `/api/admin/banners/${editingBanner.id}`
@@ -181,7 +189,10 @@ export default function BannersManagement() {
 
       const response = await fetch(url, {
         method,
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

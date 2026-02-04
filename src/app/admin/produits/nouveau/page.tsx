@@ -147,35 +147,44 @@ export default function CreateProduct() {
         throw new Error('Prix invalide');
       }
 
-      const formDataToSend = new FormData();
-      
-      // Add text fields
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('slug', formData.slug || generateSlug(formData.name));
-      formDataToSend.append('categoryId', formData.categoryId);
-      formDataToSend.append('shortDesc', formData.shortDesc);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('price', price.toString());
-      formDataToSend.append('comparePrice', formData.comparePrice || '');
-      formDataToSend.append('cost', formData.cost || '');
-      formDataToSend.append('sku', formData.sku);
-      formDataToSend.append('stock', formData.stock);
-      formDataToSend.append('isNew', formData.isNew.toString());
-      formDataToSend.append('isFeatured', formData.isFeatured.toString());
-      formDataToSend.append('isOnSale', formData.isOnSale.toString());
-      formDataToSend.append('isPack', formData.isPack.toString());
-      formDataToSend.append('metaTitle', formData.metaTitle);
-      formDataToSend.append('metaDescription', formData.metaDescription);
-      formDataToSend.append('published', formData.published.toString());
-      
-      // Add images
-      images.forEach((image) => {
-        formDataToSend.append('images', image);
-      });
+      // Convert images to base64
+      const imageUrls: string[] = [];
+      for (const image of images) {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(image);
+        });
+        imageUrls.push(base64);
+      }
+
+      const payload = {
+        name: formData.name,
+        slug: formData.slug || generateSlug(formData.name),
+        categoryId: formData.categoryId,
+        shortDesc: formData.shortDesc,
+        description: formData.description,
+        price: price,
+        comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
+        cost: formData.cost ? parseFloat(formData.cost) : null,
+        sku: formData.sku,
+        stock: parseInt(formData.stock),
+        isNew: formData.isNew,
+        isFeatured: formData.isFeatured,
+        isOnSale: formData.isOnSale,
+        isPack: formData.isPack,
+        metaTitle: formData.metaTitle,
+        metaDescription: formData.metaDescription,
+        publishedAt: formData.published ? new Date().toISOString() : null,
+        images: imageUrls,
+      };
 
       const response = await fetch('/api/admin/products', {
         method: 'POST',
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

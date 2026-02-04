@@ -10,19 +10,17 @@ import {
   Package, 
   AlertCircle,
   Plus,
-  Eye,
-  TrendingUp,
-  TrendingDown
+  Eye
 } from 'lucide-react';
 import Loading from '@/components/Loading';
 
 interface DashboardStats {
-  ordersToday: number;
-  revenueToday: number;
+  totalOrders: number;
+  totalProducts: number;
+  totalCategories: number;
+  totalRevenue: number;
   pendingOrders: number;
   lowStockProducts: number;
-  ordersChange: number;
-  revenueChange: number;
 }
 
 interface RecentOrder {
@@ -128,38 +126,26 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Orders Today */}
+          {/* Total Orders */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="bg-blue-100 p-3 rounded-lg">
                 <ShoppingCart className="w-6 h-6 text-blue-600" />
               </div>
-              {stats && stats.ordersChange !== 0 && (
-                <span className={`text-sm flex items-center gap-1 ${stats.ordersChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {stats.ordersChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                  {Math.abs(stats.ordersChange)}%
-                </span>
-              )}
             </div>
-            <h3 className="text-gray-600 text-sm font-medium">Commandes aujourd'hui</h3>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.ordersToday || 0}</p>
+            <h3 className="text-gray-600 text-sm font-medium">Total commandes</h3>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.totalOrders || 0}</p>
           </div>
 
-          {/* Revenue Today */}
+          {/* Total Revenue */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="bg-[#D4AF37]/10 p-3 rounded-lg">
                 <DollarSign className="w-6 h-6 text-[#D4AF37]" />
               </div>
-              {stats && stats.revenueChange !== 0 && (
-                <span className={`text-sm flex items-center gap-1 ${stats.revenueChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {stats.revenueChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                  {Math.abs(stats.revenueChange)}%
-                </span>
-              )}
             </div>
-            <h3 className="text-gray-600 text-sm font-medium">Revenu aujourd'hui</h3>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.revenueToday.toFixed(2) || '0.00'} DA</p>
+            <h3 className="text-gray-600 text-sm font-medium">Revenu total</h3>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.totalRevenue.toFixed(2) || '0.00'} DA</p>
           </div>
 
           {/* Pending Orders */}

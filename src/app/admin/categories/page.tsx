@@ -134,15 +134,23 @@ export default function CategoriesManagement() {
         throw new Error('Le nom est obligatoire');
       }
 
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('slug', formData.slug || generateSlug(formData.name));
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('order', formData.order.toString());
-      
+      // Convert image to base64 if new image is uploaded
+      let imageUrl = editingCategory?.image || null;
       if (imageFile) {
-        formDataToSend.append('image', imageFile);
+        imageUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(imageFile);
+        });
       }
+
+      const payload = {
+        name: formData.name,
+        slug: formData.slug || generateSlug(formData.name),
+        description: formData.description,
+        image: imageUrl,
+        order: formData.order,
+      };
 
       const url = editingCategory
         ? `/api/admin/categories/${editingCategory.id}`
@@ -152,7 +160,10 @@ export default function CategoriesManagement() {
 
       const response = await fetch(url, {
         method,
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

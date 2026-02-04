@@ -72,7 +72,7 @@ export default function ProductsList() {
       setLoading(true);
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: itemsPerPage.toString(),
+        perPage: itemsPerPage.toString(),
       });
       
       if (searchTerm) params.append('search', searchTerm);
@@ -83,7 +83,7 @@ export default function ProductsList() {
       if (response.ok) {
         const data = await response.json();
         setProducts(data.products || []);
-        setTotalPages(Math.ceil((data.total || 0) / itemsPerPage));
+        setTotalPages(data.pagination?.totalPages || 1);
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
