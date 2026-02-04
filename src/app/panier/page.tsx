@@ -165,7 +165,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-gray-700">
                       <span>Livraison</span>
-                      <span className="text-sm text-gray-500">Calculé à l'étape suivante</span>
+                      <span className="text-sm text-gray-500">Calculé à l&apos;étape suivante</span>
                     </div>
                   </div>
 

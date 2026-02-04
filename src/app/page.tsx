@@ -213,7 +213,7 @@ export default async function HomePage() {
             Prêt à Commencer Votre Transformation ?
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Rejoignez des milliers de clients satisfaits à travers l'Algérie
+            Rejoignez des milliers de clients satisfaits à travers l&apos;Algérie
           </p>
           <Link
             href="/produits"

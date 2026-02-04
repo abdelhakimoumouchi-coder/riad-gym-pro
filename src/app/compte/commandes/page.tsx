@@ -107,7 +107,7 @@ export default function OrdersPage() {
               <Package className="w-20 h-20 text-gray-300 mx-auto mb-6" />
               <h2 className="text-2xl font-bold text-dark mb-4">Aucune commande</h2>
               <p className="text-gray-600 mb-8">
-                Vous n'avez pas encore passé de commande
+                Vous n&apos;avez pas encore passé de commande
               </p>
               <Link
                 href="/produits"

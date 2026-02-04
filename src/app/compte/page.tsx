@@ -155,7 +155,7 @@ export default function AccountPage() {
                   <h3 className="text-xl font-semibold text-dark group-hover:text-primary transition-colors mb-2">
                     Mes Commandes
                   </h3>
-                  <p className="text-gray-600">Consulter l'historique de vos commandes</p>
+                  <p className="text-gray-600">Consulter l&apos;historique de vos commandes</p>
                 </div>
                 <ShoppingBag className="w-8 h-8 text-primary" />
               </div>

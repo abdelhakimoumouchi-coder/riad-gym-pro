@@ -89,7 +89,10 @@ export default function AddressesPage() {
   };
 
   const handleEdit = (address: Address) => {
-    setFormData(address);
+    setFormData({
+      ...address,
+      postalCode: address.postalCode || '',
+    });
     setEditingId(address.id);
     setShowForm(true);
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -9,7 +9,7 @@ import Loading from '@/components/Loading';
 import { Product, Category } from '@/types';
 import { Filter, X, ChevronDown } from 'lucide-react';
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -48,6 +48,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, isNew, isOnSale, isPack, search, currentPage]);
 
   const fetchProducts = async () => {
@@ -268,5 +269,21 @@ export default function ProductsPage() {
 
       <Footer />
     </>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-light-gray flex items-center justify-center">
+          <Loading />
+        </div>
+        <Footer />
+      </>
+    }>
+      <ProductsContent />
+    </Suspense>
   );
 }

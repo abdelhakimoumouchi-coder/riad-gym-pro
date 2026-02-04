@@ -212,7 +212,7 @@ export default function RegisterPage() {
               ) : (
                 <>
                   <UserPlus className="w-5 h-5" />
-                  S'inscrire
+                  S&apos;inscrire
                 </>
               )}
             </button>
@@ -229,7 +229,7 @@ export default function RegisterPage() {
 
           <div className="mt-6 pt-6 border-t text-center">
             <Link href="/" className="text-gray-600 hover:text-primary text-sm">
-              ← Retour à l'accueil
+              ← Retour à l&apos;accueil
             </Link>
           </div>
         </div>
