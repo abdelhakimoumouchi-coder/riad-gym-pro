@@ -177,6 +177,7 @@ export default function CreateProduct() {
         metaDescription: formData.metaDescription,
         publishedAt: formData.published ? new Date().toISOString() : null,
         images: imageUrls,
+        thumbnail: imageUrls[0] || null,
       };
 
       const response = await fetch('/api/admin/products', {

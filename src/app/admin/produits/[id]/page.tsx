@@ -226,6 +226,7 @@ export default function EditProduct() {
         metaDescription: formData.metaDescription,
         publishedAt: formData.published ? new Date().toISOString() : null,
         images: allImages,
+        thumbnail: allImages[0] || null,
       };
 
       const response = await fetch(`/api/admin/products/${params.id}`, {

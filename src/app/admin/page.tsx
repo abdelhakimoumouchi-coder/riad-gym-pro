@@ -26,7 +26,8 @@ interface DashboardStats {
 interface RecentOrder {
   id: string;
   orderNumber: string;
-  customerName: string;
+  guestFirstName: string;
+  guestLastName: string;
   total: number;
   status: string;
   createdAt: string;
@@ -235,7 +236,7 @@ export default function AdminDashboard() {
                         {order.orderNumber}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {order.customerName}
+                        {order.guestFirstName} {order.guestLastName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {order.total.toFixed(2)} DA

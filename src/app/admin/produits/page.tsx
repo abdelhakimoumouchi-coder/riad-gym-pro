@@ -35,7 +35,6 @@ export default function ProductsList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 20;
@@ -53,7 +52,7 @@ export default function ProductsList() {
       fetchCategories();
       fetchProducts();
     }
-  }, [status, session, page, searchTerm, selectedCategory, selectedStatus]);
+  }, [status, session, page, searchTerm, selectedCategory]);
 
   const fetchCategories = async () => {
     try {
@@ -77,7 +76,6 @@ export default function ProductsList() {
       
       if (searchTerm) params.append('search', searchTerm);
       if (selectedCategory) params.append('categoryId', selectedCategory);
-      if (selectedStatus) params.append('status', selectedStatus);
 
       const response = await fetch(`/api/admin/products?${params}`);
       if (response.ok) {
@@ -143,7 +141,7 @@ export default function ProductsList() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -174,20 +172,6 @@ export default function ProductsList() {
                   {cat.name}
                 </option>
               ))}
-            </select>
-
-            {/* Status Filter */}
-            <select
-              value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                setPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-            >
-              <option value="">Tous les statuts</option>
-              <option value="published">Publié</option>
-              <option value="draft">Brouillon</option>
             </select>
           </div>
         </div>

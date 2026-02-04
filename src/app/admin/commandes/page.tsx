@@ -68,7 +68,7 @@ export default function OrdersList() {
       if (response.ok) {
         const data = await response.json();
         setOrders(data.orders || []);
-        setTotalPages(Math.ceil((data.total || 0) / itemsPerPage));
+        setTotalPages(data.pagination?.totalPages || 1);
       }
     } catch (error) {
       console.error('Failed to fetch orders:', error);
