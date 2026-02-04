@@ -475,7 +475,7 @@ export default function BannersManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ordre d'affichage
+                    Ordre d&apos;affichage
                   </label>
                   <input
                     type="number"
