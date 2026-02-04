@@ -26,7 +26,7 @@ export default function AdminSidebar() {
   const handleLogout = async () => {
     if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
       await fetch('/api/auth/signout', { method: 'POST' });
-      window.location.href = '/admin/connexion';
+      window.location.href = '/auth/login';
     }
   };
 

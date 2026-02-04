@@ -109,13 +109,13 @@ export default function Navbar() {
                     ) : (
                       <>
                         <Link
-                          href="/auth/connexion"
+                          href="/auth/login"
                           className="block px-4 py-2 text-dark hover:bg-light-gray transition-colors"
                         >
                           Connexion
                         </Link>
                         <Link
-                          href="/auth/inscription"
+                          href="/auth/register"
                           className="block px-4 py-2 text-dark hover:bg-light-gray transition-colors"
                         >
                           Inscription
@@ -235,10 +235,10 @@ export default function Navbar() {
                   </>
                 ) : (
                   <>
-                    <Link href="/auth/connexion" className="block py-2 text-dark hover:text-primary">
+                    <Link href="/auth/login" className="block py-2 text-dark hover:text-primary">
                       Connexion
                     </Link>
-                    <Link href="/auth/inscription" className="block py-2 text-dark hover:text-primary">
+                    <Link href="/auth/register" className="block py-2 text-dark hover:text-primary">
                       Inscription
                     </Link>
                   </>
