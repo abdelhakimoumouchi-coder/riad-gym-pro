@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { CartItem } from '@/types';
 import { formatPrice, WILAYAS, isValidPhone, isValidEmail } from '@/lib/utils';
+import { VIBER_NUMBER, INPUT_CLASS } from '@/lib/constants';
 import { Loader2, MapPin } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -132,7 +133,7 @@ export default function CheckoutPage() {
         `⚠️ Paiement: Veuillez effectuer un dépôt de 1000 DA via CCP ou BaridiMob pour confirmer votre commande. Les détails vous seront envoyés après confirmation.`
       );
 
-      const viberUrl = `viber://chat?number=%2B213XXXXXXXXX&text=${message}`;
+      const viberUrl = `viber://chat?number=${encodeURIComponent(VIBER_NUMBER)}&text=${message}`;
       window.location.href = viberUrl;
     }
   };
@@ -178,7 +179,7 @@ export default function CheckoutPage() {
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className={INPUT_CLASS}
                         required
                       />
                     </div>

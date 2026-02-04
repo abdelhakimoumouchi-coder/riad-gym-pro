@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
+import { VIBER_NUMBER } from '@/lib/constants';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,7 +19,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="viber://chat?number=%2B213XXXXXXXXX"
+                href={`viber://chat?number=${encodeURIComponent(VIBER_NUMBER)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-dark-lighter hover:bg-primary transition-colors flex items-center justify-center"

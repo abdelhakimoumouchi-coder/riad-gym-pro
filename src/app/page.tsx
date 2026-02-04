@@ -5,10 +5,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/types';
+import { API_BASE_URL } from '@/lib/constants';
 
 async function getNewProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products?isNew=true&limit=8`, {
+    const res = await fetch(`${API_BASE_URL}/api/products?isNew=true&limit=8`, {
       cache: 'no-store',
     });
     if (!res.ok) return [];
@@ -22,7 +23,7 @@ async function getNewProducts() {
 
 async function getSaleProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products?isOnSale=true&limit=8`, {
+    const res = await fetch(`${API_BASE_URL}/api/products?isOnSale=true&limit=8`, {
       cache: 'no-store',
     });
     if (!res.ok) return [];
@@ -36,7 +37,7 @@ async function getSaleProducts() {
 
 async function getFeaturedProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products?isFeatured=true&limit=8`, {
+    const res = await fetch(`${API_BASE_URL}/api/products?isFeatured=true&limit=8`, {
       cache: 'no-store',
     });
     if (!res.ok) return [];
