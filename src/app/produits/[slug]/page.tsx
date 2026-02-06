@@ -34,13 +34,15 @@ export default function ProductDetailPage() {
       const res = await fetch(`/api/products/${slug}`);
       if (!res.ok) throw new Error('Product not found');
       const data = await res.json();
-      setProduct(data);
+      const prod = data.product ?? data; // accepte { product, similarProducts } ou produit direct
+      setProduct(prod);
 
-      // Fetch similar products
-      if (data.categoryId) {
-        const simRes = await fetch(`/api/products?categoryId=${data.categoryId}&limit=4`);
+      if (data.similarProducts) {
+        setSimilarProducts((data.similarProducts || []).filter((p: Product) => p.id !== prod.id));
+      } else if (prod.categoryId) {
+        const simRes = await fetch(`/api/products?categoryId=${prod.categoryId}&limit=4`);
         const simData = await simRes.json();
-        setSimilarProducts((simData.products || []).filter((p: Product) => p.id !== data.id));
+        setSimilarProducts((simData.products || []).filter((p: Product) => p.id !== prod.id));
       }
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -56,6 +58,12 @@ export default function ProductDetailPage() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cart.find((item: any) => item.id === product.id);
 
+    const safeImage =
+      product.thumbnail ||
+      (Array.isArray(product.images) && product.images.length > 0
+        ? product.images[0]
+        : '/placeholder.png');
+
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
@@ -64,7 +72,7 @@ export default function ProductDetailPage() {
         name: product.name,
         slug: product.slug,
         price: product.price,
-        image: product.thumbnail || product.images[0] || '/placeholder.png',
+        image: safeImage,
         quantity,
       });
     }
@@ -115,8 +123,9 @@ export default function ProductDetailPage() {
     ? calculateDiscount(product.comparePrice, product.price)
     : 0;
 
-  const images = product.images.length > 0 ? product.images : ['/placeholder.png'];
-  const inStock = product.stock > 0;
+  const imagesArr = Array.isArray(product.images) ? product.images : [];
+  const images = imagesArr.length > 0 ? imagesArr : ['/placeholder.png'];
+  const inStock = (product.stock ?? 0) > 0;
 
   return (
     <>
@@ -206,12 +215,12 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Stock Status */}
+                {/* Stock Status (sans le nombre) */}
                 <div className="mb-6">
                   {inStock ? (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
                       <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                      <span className="font-medium">En stock ({product.stock} disponibles)</span>
+                      <span className="font-medium">En stock</span>
                     </div>
                   ) : (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-lg">

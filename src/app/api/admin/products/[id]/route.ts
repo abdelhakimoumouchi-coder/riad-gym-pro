@@ -5,14 +5,16 @@ import { generateSlug } from '@/lib/utils';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const adminCheck = await requireAdmin();
   if (adminCheck) return adminCheck;
 
   try {
+    const { id } = await params;
+
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         category: true,
         _count: {
@@ -22,30 +24,25 @@ export async function GET(
     });
 
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
     return NextResponse.json({ product });
   } catch (error) {
     console.error('Error fetching product:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const adminCheck = await requireAdmin();
   if (adminCheck) return adminCheck;
 
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -69,27 +66,20 @@ export async function PUT(
       publishedAt,
     } = body;
 
-    // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingProduct) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Generate or validate slug if name changed
-    const slug = providedSlug || (name !== existingProduct.name ? generateSlug(name) : existingProduct.slug);
+    const slug =
+      providedSlug ||
+      (name !== existingProduct.name ? generateSlug(name) : existingProduct.slug);
 
-    // Check if new slug conflicts with another product
     if (slug !== existingProduct.slug) {
-      const slugConflict = await prisma.product.findUnique({
-        where: { slug },
-      });
-
+      const slugConflict = await prisma.product.findUnique({ where: { slug } });
       if (slugConflict) {
         return NextResponse.json(
           { error: 'A product with this slug already exists' },
@@ -98,31 +88,33 @@ export async function PUT(
       }
     }
 
-    // Verify category exists if changed
     if (categoryId && categoryId !== existingProduct.categoryId) {
-      const category = await prisma.category.findUnique({
-        where: { id: categoryId },
-      });
-
+      const category = await prisma.category.findUnique({ where: { id: categoryId } });
       if (!category) {
-        return NextResponse.json(
-          { error: 'Category not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'Category not found' }, { status: 404 });
       }
     }
 
-    // Update product
     const product = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: {
-        name: name || existingProduct.name,
+        name: name ?? existingProduct.name,
         slug,
         description: description !== undefined ? description : existingProduct.description,
         shortDesc: shortDesc !== undefined ? shortDesc : existingProduct.shortDesc,
-        price: price ? parseFloat(price) : existingProduct.price,
-        comparePrice: comparePrice !== undefined ? (comparePrice ? parseFloat(comparePrice) : null) : existingProduct.comparePrice,
-        cost: cost !== undefined ? (cost ? parseFloat(cost) : null) : existingProduct.cost,
+        price: price !== undefined ? parseFloat(price) : existingProduct.price,
+        comparePrice:
+          comparePrice !== undefined
+            ? comparePrice
+              ? parseFloat(comparePrice)
+              : null
+            : existingProduct.comparePrice,
+        cost:
+          cost !== undefined
+            ? cost
+              ? parseFloat(cost)
+              : null
+            : existingProduct.cost,
         stock: stock !== undefined ? parseInt(stock) : existingProduct.stock,
         sku: sku !== undefined ? sku : existingProduct.sku,
         images: images !== undefined ? images : existingProduct.images,
@@ -133,37 +125,39 @@ export async function PUT(
         isOnSale: isOnSale !== undefined ? !!isOnSale : existingProduct.isOnSale,
         isPack: isPack !== undefined ? !!isPack : existingProduct.isPack,
         metaTitle: metaTitle !== undefined ? metaTitle : existingProduct.metaTitle,
-        metaDescription: metaDescription !== undefined ? metaDescription : existingProduct.metaDescription,
-        publishedAt: publishedAt !== undefined ? (publishedAt ? new Date(publishedAt) : null) : existingProduct.publishedAt,
+        metaDescription:
+          metaDescription !== undefined ? metaDescription : existingProduct.metaDescription,
+        publishedAt:
+          publishedAt !== undefined
+            ? publishedAt
+              ? new Date(publishedAt)
+              : null
+            : existingProduct.publishedAt,
       },
       include: {
         category: true,
       },
     });
 
-    return NextResponse.json(
-      { message: 'Product updated successfully', product }
-    );
+    return NextResponse.json({ message: 'Product updated successfully', product });
   } catch (error) {
     console.error('Error updating product:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const adminCheck = await requireAdmin();
   if (adminCheck) return adminCheck;
 
   try {
-    // Check if product exists
+    const { id } = await params;
+
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: { orderItems: true },
@@ -172,13 +166,9 @@ export async function DELETE(
     });
 
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Check if product has orders
     if (product._count.orderItems > 0) {
       return NextResponse.json(
         { error: 'Cannot delete product with existing orders' },
@@ -186,19 +176,11 @@ export async function DELETE(
       );
     }
 
-    // Delete product
-    await prisma.product.delete({
-      where: { id: params.id },
-    });
+    await prisma.product.delete({ where: { id } });
 
-    return NextResponse.json(
-      { message: 'Product deleted successfully' }
-    );
+    return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
     console.error('Error deleting product:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

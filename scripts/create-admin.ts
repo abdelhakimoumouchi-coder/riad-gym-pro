@@ -6,23 +6,18 @@ const prisma = new PrismaClient();
 async function main() {
   const email = 'admin@riadgympro.dz';
   const password = 'admin123';
-  
+
   console.log('Creating admin user...');
 
-  // Check if admin already exists
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email },
-  });
+  const existingAdmin = await prisma.user.findUnique({ where: { email } });
 
   if (existingAdmin) {
     console.log('Admin user already exists!');
     return;
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create admin
   const admin = await prisma.user.create({
     data: {
       email,
