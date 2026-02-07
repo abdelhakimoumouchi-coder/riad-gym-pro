@@ -27,10 +27,10 @@ interface OrderDetail {
   viberSent: boolean;
   viberNumber: string | null;
   createdAt: string;
-  wilaya: {
+  wilaya?: {
     name: string;
     code: string;
-  };
+  } | null;
   items: Array<{
     id: string;
     quantity: number;
@@ -80,11 +80,11 @@ export default function OrderDetail() {
         throw new Error('Commande non trouvée');
       }
       
-      const data = await response.json();
-      setOrder(data);
-      setAdminNotes(data.adminNotes || '');
-      setSelectedStatus(data.status);
-      setViberSent(data.viberSent);
+      const { order } = await response.json();
+      setOrder(order);
+      setAdminNotes(order.adminNotes || '');
+      setSelectedStatus(order.status);
+      setViberSent(order.viberSent);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -308,7 +308,7 @@ export default function OrderDetail() {
                 <div>
                   <label className="text-sm text-gray-600">Wilaya</label>
                   <p className="font-medium text-gray-900">
-                    {order.wilaya.code} - {order.wilaya.name}
+                    {order.wilaya ? `${order.wilaya.code} - ${order.wilaya.name}` : 'Wilaya inconnue'}
                   </p>
                 </div>
                 <div>

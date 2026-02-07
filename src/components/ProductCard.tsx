@@ -68,6 +68,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+      {/* Badge catégorie déplacé hors du Link principal */}
+      <Link
+        href={`/produits?categorie=${product.category.slug}`}
+        className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-dark px-3 py-1 rounded-full text-xs font-medium hover:bg-primary hover:text-white transition-colors z-10"
+      >
+        {product.category.name}
+      </Link>
+
       {/* Image Container */}
       <Link href={`/produits/${product.slug}`} className="block relative aspect-square overflow-hidden bg-light-gray">
         <Image
@@ -90,16 +98,6 @@ export default function ProductCard({ product }: ProductCardProps) {
               -{discount}%
             </span>
           )}
-        </div>
-
-        {/* Category Badge */}
-        <div className="absolute top-2 right-2">
-          <Link
-            href={`/produits?categorie=${product.category.slug}`}
-            className="bg-white/90 backdrop-blur-sm text-dark px-3 py-1 rounded-full text-xs font-medium hover:bg-primary hover:text-white transition-colors"
-          >
-            {product.category.name}
-          </Link>
         </div>
       </Link>
 

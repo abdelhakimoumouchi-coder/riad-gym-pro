@@ -61,33 +61,66 @@ export default async function HomePage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative h-[600px] bg-gradient-to-br from-dark via-dark-light to-dark-lighter overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
+      <section className="relative h-[640px] bg-dark overflow-hidden">
+        {/* Backgrounds : desktop / mobile */}
+        <div className="absolute inset-0">
+          <Image
+            src="/hero-banner.png"          // desktop (paysage)
+            alt="Bannière"
+            fill
+            priority
+            className="object-cover hidden sm:block"
+          />
+          <Image
+            src="/hero-mobile-mob.png"          // mobile (portrait)
+            alt="Bannière mobile"
+            fill
+            priority
+            className="object-cover sm:hidden"
+          />
+        </div>
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/45" />
+        {/* Optional pattern */}
+        <div className="absolute inset-0 opacity-15">
           <div className="absolute inset-0 bg-[url('/hero-pattern.svg')] bg-repeat opacity-30"></div>
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-display">
-              Transformez Votre <span className="text-primary">Corps</span>
-            </h1>
-            <p className="text-xl text-gray-300 mb-8">
-              Les meilleurs compléments alimentaires sportifs en Algérie. 
-              Livraison rapide à travers les 58 wilayas.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/produits"
-                className="bg-primary hover:bg-primary-dark text-dark font-semibold px-8 py-4 rounded-lg transition-colors inline-flex items-center gap-2"
-              >
-                Découvrir nos produits
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/promotions"
-                className="bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-lg transition-colors backdrop-blur-sm border border-white/20"
-              >
-                Voir les promotions
-              </Link>
+
+        <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-16 w-full">
+            {/* Logo à gauche (caché sur mobile si tu veux, ici on laisse visible) */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="relative w-[220px] h-[220px] md:w-[320px] md:h-[320px] lg:w-[360px] lg:h-[360px] drop-shadow-2xl">
+                <Image
+                  src="/hero-logo.png" // place ton logo ici (public/hero-logo.png)
+                  alt="Riad Gym Pro"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Texte + CTA à droite */}
+            <div className="text-center lg:text-left space-y-5">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-display leading-tight">
+                Transformez Votre <span className="text-primary">Corps</span>
+              </h1>
+              <p className="text-lg md:text-xl text-white font-semibold">
+                avec des Compléments Certifiés
+              </p>
+              <p className="text-base md:text-lg text-gray-100 max-w-2xl">
+                Boostez vos performances avec nos produits de nutrition sportive certifiés en Algérie.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/produits"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-dark font-semibold px-6 md:px-8 py-3 md:py-4 rounded-lg shadow-lg transition-colors"
+                >
+                  Découvrir nos produits
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

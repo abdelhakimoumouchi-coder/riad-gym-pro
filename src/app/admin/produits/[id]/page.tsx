@@ -106,26 +106,27 @@ export default function EditProduct() {
       }
       
       const data = await response.json();
-      setProduct(data);
-      setExistingImages(data.images || []);
+      const prod: Product = data.product ?? data; // <- adapte au format { product }
+      setProduct(prod);
+      setExistingImages(Array.isArray(prod.images) ? prod.images : []);
       setFormData({
-        name: data.name,
-        slug: data.slug,
-        categoryId: data.categoryId,
-        shortDesc: data.shortDesc || '',
-        description: data.description || '',
-        price: data.price.toString(),
-        comparePrice: data.comparePrice?.toString() || '',
-        cost: data.cost?.toString() || '',
-        sku: data.sku || '',
-        stock: data.stock.toString(),
-        isNew: data.isNew,
-        isFeatured: data.isFeatured,
-        isOnSale: data.isOnSale,
-        isPack: data.isPack,
-        metaTitle: data.metaTitle || '',
-        metaDescription: data.metaDescription || '',
-        published: !!data.publishedAt,
+        name: prod.name ?? '',
+        slug: prod.slug ?? '',
+        categoryId: prod.categoryId ?? '',
+        shortDesc: prod.shortDesc || '',
+        description: prod.description || '',
+        price: prod.price !== undefined && prod.price !== null ? prod.price.toString() : '',
+        comparePrice: prod.comparePrice !== undefined && prod.comparePrice !== null ? prod.comparePrice.toString() : '',
+        cost: prod.cost !== undefined && prod.cost !== null ? prod.cost.toString() : '',
+        sku: prod.sku || '',
+        stock: prod.stock !== undefined && prod.stock !== null ? prod.stock.toString() : '0',
+        isNew: !!prod.isNew,
+        isFeatured: !!prod.isFeatured,
+        isOnSale: !!prod.isOnSale,
+        isPack: !!prod.isPack,
+        metaTitle: prod.metaTitle || '',
+        metaDescription: prod.metaDescription || '',
+        published: !!prod.publishedAt,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');

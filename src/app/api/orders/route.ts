@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       guestLastName,
       guestPhone,
       guestEmail,
-      wilayaId,
+      wilayaId,        // peut être un id ou un code
       commune,
       deliveryAddress,
       postalCode,
@@ -52,7 +52,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check stock availability
     for (const item of items) {
       const product = products.find((p: any) => p.id === item.productId);
       if (!product) {
@@ -69,9 +68,14 @@ export async function POST(request: Request) {
       }
     }
 
-    // Get wilaya for shipping cost
-    const wilaya = await prisma.wilaya.findUnique({
-      where: { id: wilayaId },
+    // Get wilaya for shipping cost (accept id OR code)
+    const wilaya = await prisma.wilaya.findFirst({
+      where: {
+        OR: [
+          { id: wilayaId },
+          { code: wilayaId },
+        ],
+      },
     });
 
     if (!wilaya) {
@@ -101,7 +105,6 @@ export async function POST(request: Request) {
 
     // Create order with items and decrement stock
     const order = await prisma.$transaction(async (tx: any) => {
-      // Create order
       const newOrder = await tx.order.create({
         data: {
           orderNumber: generateOrderNumber(),
@@ -110,7 +113,7 @@ export async function POST(request: Request) {
           guestLastName,
           guestPhone,
           guestEmail: guestEmail || null,
-          wilayaId,
+          wilayaId: wilaya.id,
           commune,
           deliveryAddress,
           postalCode,
@@ -134,7 +137,6 @@ export async function POST(request: Request) {
         },
       });
 
-      // Decrement stock for each product
       for (const item of items) {
         await tx.product.update({
           where: { id: item.productId },
