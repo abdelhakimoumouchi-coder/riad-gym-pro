@@ -7,6 +7,14 @@ import ProductCard from '@/components/ProductCard';
 import { Product } from '@/types';
 import { API_BASE_URL } from '@/lib/constants';
 
+type Banner = {
+  id: string;
+  title?: string | null;
+  subtitle?: string | null;
+  image: string;
+  link?: string | null;
+};
+
 async function getNewProducts() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/products?isNew=true&limit=8`, {
@@ -49,11 +57,24 @@ async function getFeaturedProducts() {
   }
 }
 
+async function getBanners() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/banners`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.banners || [];
+  } catch (error) {
+    console.error('Error fetching banners:', error);
+    return [];
+  }
+}
+
 export default async function HomePage() {
-  const [newProducts, saleProducts, featuredProducts] = await Promise.all([
+  const [newProducts, saleProducts, featuredProducts, banners] = await Promise.all([
     getNewProducts(),
     getSaleProducts(),
     getFeaturedProducts(),
+    getBanners(),
   ]);
 
   return (
@@ -61,7 +82,7 @@ export default async function HomePage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative h-[640px] bg-dark overflow-hidden">
+      <section className="relative h-[760px] bg-dark overflow-hidden">
         {/* Backgrounds : desktop / mobile */}
         <div className="absolute inset-0">
           <Image
@@ -88,21 +109,8 @@ export default async function HomePage() {
 
         <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-16 w-full">
-            {/* Logo à gauche (caché sur mobile si tu veux, ici on laisse visible) */}
-            <div className="flex justify-center lg:justify-start">
-              <div className="relative w-[220px] h-[220px] md:w-[320px] md:h-[320px] lg:w-[360px] lg:h-[360px] drop-shadow-2xl">
-                <Image
-                  src="/hero-logo.png" // place ton logo ici (public/hero-logo.png)
-                  alt="Riad Gym Pro"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
-
-            {/* Texte + CTA à droite */}
-            <div className="text-center lg:text-left space-y-5">
+            {/* Texte + CTA */}
+            <div className="text-center lg:text-left space-y-5 lg:col-span-2">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-display leading-tight">
                 Transformez Votre <span className="text-primary">Corps</span>
               </h1>
@@ -126,40 +134,46 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Truck className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-dark mb-2">Livraison Rapide</h3>
-              <p className="text-gray-600">
-                Livraison à travers les 58 wilayas avec suivi de commande
-              </p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-dark mb-2">Qualité Garantie</h3>
-              <p className="text-gray-600">
-                Produits authentiques certifiés et testés en laboratoire
-              </p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-dark mb-2">Paiement Sécurisé</h3>
-              <p className="text-gray-600">
-                Paiement à la livraison, CCP ou BaridiMob en toute sécurité
-              </p>
+      {/* Banners Section (admin banners) */}
+      {banners.length > 0 && (
+        <section className="bg-white py-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {banners.map((banner: Banner) => {
+                const content = (
+                  <div className="relative w-full h-52 sm:h-56 lg:h-60 overflow-hidden rounded-xl shadow-md group">
+                    <Image
+                      src={banner.image}
+                      alt={banner.title || 'Bannière'}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/30" />
+                    {(banner.title || banner.subtitle) && (
+                      <div className="absolute inset-0 flex flex-col justify-center px-4 text-white drop-shadow-lg">
+                        {banner.title && (
+                          <h3 className="text-xl font-bold mb-1">{banner.title}</h3>
+                        )}
+                        {banner.subtitle && (
+                          <p className="text-sm text-gray-200">{banner.subtitle}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+
+                return banner.link ? (
+                  <Link key={banner.id} href={banner.link} className="block">
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={banner.id}>{content}</div>
+                );
+              })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* New Products Section */}
       {newProducts.length > 0 && (
@@ -239,23 +253,38 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-dark via-dark-light to-dark text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Star className="w-16 h-16 text-primary mx-auto mb-6" />
-          <h2 className="text-4xl font-bold mb-4 font-display">
-            Prêt à Commencer Votre Transformation ?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Rejoignez des milliers de clients satisfaits à travers l&apos;Algérie
-          </p>
-          <Link
-            href="/produits"
-            className="bg-primary hover:bg-primary-dark text-dark font-semibold px-8 py-4 rounded-lg transition-colors inline-flex items-center gap-2"
-          >
-            Commencer maintenant
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+      {/* Features Section (déplacée en bas, juste au-dessus du footer) */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-dark mb-2">Livraison Rapide</h3>
+              <p className="text-gray-600">
+                Livraison à travers les 58 wilayas avec suivi de commande
+              </p>
+            </div>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex itemsCenter justifyCenter items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-dark mb-2">Qualité Garantie</h3>
+              <p className="text-gray-600">
+                Produits authentiques certifiés et testés en laboratoire
+              </p>
+            </div>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-dark mb-2">Paiement Sécurisé</h3>
+              <p className="text-gray-600">
+                Paiement à la livraison, CCP ou BaridiMob en toute sécurité
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

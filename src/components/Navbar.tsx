@@ -66,7 +66,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
               <div className="text-2xl font-bold text-dark">
-                RIAD <span className="text-primary">GYM</span>
+                RIAD GYM  <span className="text-primary">PRO</span>
               </div>
             </Link>
 

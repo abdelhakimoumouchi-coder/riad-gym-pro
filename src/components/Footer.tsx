@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Brand Info */}
           <div>
             <h3 className="text-2xl font-bold mb-4">
-              RIAD <span className="text-primary">GYM</span>
+              RI GYM <span className="text-primary">PRO</span>
             </h3>
             <p className="text-gray-400 mb-4">
               Votre destination pour les équipements de fitness et musculation en Algérie.
