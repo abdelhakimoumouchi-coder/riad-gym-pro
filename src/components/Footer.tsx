@@ -39,7 +39,7 @@ export default function Footer() {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://instagram.com/riadgym"
+                href="https://www.instagram.com/ri.gym.pro/%3Fhl%3Dfr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-dark-lighter hover:bg-primary transition-colors flex items-center justify-center"
@@ -126,8 +126,9 @@ export default function Footer() {
               <li className="flex items-start space-x-3">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-gray-400">+213 XXX XX XX XX</div>
-                  <div className="text-sm text-gray-500">Lun-Sam 9h-18h</div>
+                  <div className="text-gray-400">+213 674 02 20 54</div>
+                  <div className="text-gray-400">+213 551 77 63 98</div>
+                  <div className="text-sm text-gray-500">Dim-Sam 10h-22h</div>
                 </div>
               </li>
               <li className="flex items-start space-x-3">
@@ -139,7 +140,7 @@ export default function Footer() {
               <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="text-gray-400">
-                  Alger, Algérie
+                  <a href="https://share.google/H6kq93ACRoT6v4d6I" className="text-gray-400 hover:text-primary transition-colors" >Alger, Algérie</a>
                 </div>
               </li>
             </ul>

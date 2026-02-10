@@ -82,11 +82,11 @@ export default async function HomePage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative h-[760px] bg-dark overflow-hidden">
+      <section className="relative h-[820px] bg-dark overflow-hidden">
         {/* Backgrounds : desktop / mobile */}
         <div className="absolute inset-0">
           <Image
-            src="/hero-banner.png"          // desktop (paysage)
+            src="/hero-banner.webp"          // desktop (paysage)
             alt="Bannière"
             fill
             priority

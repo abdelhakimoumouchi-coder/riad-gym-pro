@@ -66,7 +66,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
               <div className="text-2xl font-bold text-dark">
-                RIAD GYM  <span className="text-primary">PRO</span>
+                RIAD GYM <span className="text-primary">PRO</span>
               </div>
             </Link>
 
@@ -141,7 +141,7 @@ export default function Navbar() {
                     {categories.map((category) => (
                       <Link
                         key={category.id}
-                        href={`/produits?categorie=${category.slug}`}
+                        href={`/produits?category=${category.slug}`}
                         className="block px-4 py-2 text-dark hover:bg-light-gray transition-colors"
                       >
                         {category.name}
@@ -151,15 +151,16 @@ export default function Navbar() {
                 )}
               </div>
 
+              {/* Promotions & Packs routed with query params */}
               <Link
-                href="/promotions"
+                href="/produits?promotions=true"
                 className="text-dark hover:text-primary transition-colors"
               >
                 Promotions
               </Link>
 
               <Link
-                href="/packs"
+                href="/produits?packs=true"
                 className="text-dark hover:text-primary transition-colors"
               >
                 Packs
@@ -250,7 +251,7 @@ export default function Navbar() {
                 {categories.map((category) => (
                   <Link
                     key={category.id}
-                    href={`/produits?categorie=${category.slug}`}
+                    href={`/produits?category=${category.slug}`}
                     className="block py-2 text-dark hover:text-primary"
                   >
                     {category.name}
@@ -258,17 +259,17 @@ export default function Navbar() {
                 ))}
               </div>
 
-              <Link href="/promotions" className="block py-2 text-dark hover:text-primary">
+              <Link href="/produits?promotions=true" className="block py-2 text-dark hover:text-primary">
                 Promotions
               </Link>
-              <Link href="/packs" className="block py-2 text-dark hover:text-primary">
+              <Link href="/produits?packs=true" className="block py-2 text-dark hover:text-primary">
                 Packs
               </Link>
             </div>
           </div>
         )}
       </nav>
-      
+
       {/* Spacer for fixed navbar */}
       <div className="h-16" />
 

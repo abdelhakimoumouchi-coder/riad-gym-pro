@@ -1,16 +1,17 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Loading from '@/components/Loading';
 import { Product, Category } from '@/types';
-import { Filter, X, ChevronDown } from 'lucide-react';
+import { Filter } from 'lucide-react';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +25,29 @@ function ProductsContent() {
   const [isOnSale, setIsOnSale] = useState(false);
   const [isPack, setIsPack] = useState(false);
   const [search, setSearch] = useState('');
+  const [filtersReady, setFiltersReady] = useState(false); // NEW
+
+  // Helper to sync category with URL
+  const setCategory = (slug: string) => {
+    setSelectedCategory(slug);
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (slug) {
+      params.set('category', slug);
+      params.delete('categorie'); // clean legacy param
+    } else {
+      params.delete('category');
+      params.delete('categorie');
+    }
+
+    // preserve other filters/search/pagination
+    params.delete('page'); // reset page on change
+    router.push(`/produits?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
-    // Get filters from URL
-    const categoryParam = searchParams.get('categorie');
+    // Get filters from URL (with backward compatibility)
+    const categoryParam = searchParams.get('category') || searchParams.get('categorie');
     const newParam = searchParams.get('nouveautes');
     const saleParam = searchParams.get('promotions');
     const packParam = searchParams.get('packs');
@@ -43,19 +63,26 @@ function ProductsContent() {
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setFiltersReady(true)); // NEW: filtres prêts
   }, [searchParams]);
 
+  // Reset pagination to page 1 when filters/search change
   useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, isNew, isOnSale, isPack, search]);
+
+  useEffect(() => {
+    if (!filtersReady) return; // NEW: évite le fetch initial « toutes catégories »
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, isNew, isOnSale, isPack, search, currentPage]);
+  }, [selectedCategory, isNew, isOnSale, isPack, search, currentPage, filtersReady]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (selectedCategory) params.append('categorySlug', selectedCategory);
+      if (selectedCategory) params.append('category', selectedCategory);
       if (isNew) params.append('isNew', 'true');
       if (isOnSale) params.append('isOnSale', 'true');
       if (isPack) params.append('isPack', 'true');
@@ -65,7 +92,7 @@ function ProductsContent() {
 
       const res = await fetch(`/api/products?${params.toString()}`);
       const data = await res.json();
-      
+
       setProducts(data.products || []);
       setTotalPages(data.pagination?.totalPages || 1);
     } catch (error) {
@@ -77,7 +104,7 @@ function ProductsContent() {
   };
 
   const clearFilters = () => {
-    setSelectedCategory('');
+    setCategory('');
     setIsNew(false);
     setIsOnSale(false);
     setIsPack(false);
@@ -90,7 +117,6 @@ function ProductsContent() {
   return (
     <>
       <Navbar />
-      
       <div className="min-h-screen bg-light-gray">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
@@ -128,7 +154,7 @@ function ProductsContent() {
                       <input
                         type="radio"
                         checked={!selectedCategory}
-                        onChange={() => setSelectedCategory('')}
+                        onChange={() => setCategory('')}
                         className="mr-2 text-primary focus:ring-primary"
                       />
                       <span className="text-gray-700">Toutes les catégories</span>
@@ -138,7 +164,7 @@ function ProductsContent() {
                         <input
                           type="radio"
                           checked={selectedCategory === category.slug}
-                          onChange={() => setSelectedCategory(category.slug)}
+                          onChange={() => setCategory(category.slug)}
                           className="mr-2 text-primary focus:ring-primary"
                         />
                         <span className="text-gray-700">{category.name}</span>
@@ -212,7 +238,7 @@ function ProductsContent() {
                   {totalPages > 1 && (
                     <div className="flex justify-center gap-2">
                       <button
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                         className="px-4 py-2 bg-white rounded-lg shadow-md hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -234,7 +260,7 @@ function ProductsContent() {
                         ))}
                       </div>
                       <button
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 bg-white rounded-lg shadow-md hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -274,15 +300,17 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-light-gray flex items-center justify-center">
-          <Loading />
-        </div>
-        <Footer />
-      </>
-    }>
+    <Suspense
+      fallback={
+        <>
+          <Navbar />
+          <div className="min-h-screen bg-light-gray flex items-center justify-center">
+            <Loading />
+          </div>
+          <Footer />
+        </>
+      }
+    >
       <ProductsContent />
     </Suspense>
   );
