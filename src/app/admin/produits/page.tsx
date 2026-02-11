@@ -52,6 +52,7 @@ export default function ProductsList() {
       fetchCategories();
       fetchProducts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, page, searchTerm, selectedCategory]);
 
   const fetchCategories = async () => {
@@ -71,11 +72,15 @@ export default function ProductsList() {
       setLoading(true);
       const params = new URLSearchParams({
         page: page.toString(),
-        perPage: itemsPerPage.toString(),
+        limit: itemsPerPage.toString(), // use "limit" consistently
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
-      if (selectedCategory) params.append('categoryId', selectedCategory);
+      if (selectedCategory) {
+        // send both, to match whichever the API expects
+        params.append('categoryId', selectedCategory);
+        params.append('category', selectedCategory);
+      }
 
       const response = await fetch(`/api/admin/products?${params}`);
       if (response.ok) {

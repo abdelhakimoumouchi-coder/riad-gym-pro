@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Truck, Shield, CreditCard, Star } from 'lucide-react';
+import { ArrowRight, Truck, Shield, CreditCard } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
@@ -13,6 +13,13 @@ type Banner = {
   subtitle?: string | null;
   image: string;
   link?: string | null;
+};
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string | null;
 };
 
 async function getNewProducts() {
@@ -69,12 +76,25 @@ async function getBanners() {
   }
 }
 
+async function getCategories() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/categories`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.categories || [];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
 export default async function HomePage() {
-  const [newProducts, saleProducts, featuredProducts, banners] = await Promise.all([
+  const [newProducts, saleProducts, featuredProducts, banners, categories] = await Promise.all([
     getNewProducts(),
     getSaleProducts(),
     getFeaturedProducts(),
     getBanners(),
+    getCategories(),
   ]);
 
   return (
@@ -83,33 +103,29 @@ export default async function HomePage() {
       
       {/* Hero Section */}
       <section className="relative h-[820px] bg-dark overflow-hidden">
-        {/* Backgrounds : desktop / mobile */}
         <div className="absolute inset-0">
           <Image
-            src="/hero-banner.webp"          // desktop (paysage)
+            src="/hero-banner.webp"
             alt="Bannière"
             fill
             priority
             className="object-cover hidden sm:block"
           />
           <Image
-            src="/hero-mobile-mob.png"          // mobile (portrait)
+            src="/hero-mobile-mob.png"
             alt="Bannière mobile"
             fill
             priority
             className="object-cover sm:hidden"
           />
         </div>
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/45" />
-        {/* Optional pattern */}
         <div className="absolute inset-0 opacity-15">
           <div className="absolute inset-0 bg-[url('/hero-pattern.svg')] bg-repeat opacity-30"></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-16 w-full">
-            {/* Texte + CTA */}
             <div className="text-center lg:text-left space-y-5 lg:col-span-2">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-display leading-tight">
                 Transformez Votre <span className="text-primary">Corps</span>
@@ -133,6 +149,45 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Catégories Section */}
+      {categories.length > 0 && (
+        <section className="bg-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-4 mb-6">
+              <h2 className="text-3xl font-bold text-dark font-display">Catégories</h2>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {categories.map((cat: Category) => (
+                <Link
+                  key={cat.id}
+                  href={`/produits?category=${cat.slug}`}
+                  className="group rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden bg-white"
+                >
+                  <div className="relative w-full h-28 sm:h-32 bg-light-gray">
+                    <Image
+                      src={cat.image || '/placeholder.png'}
+                      alt={cat.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  </div>
+                  <div className="px-3 py-3 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-dark line-clamp-1">
+                      {cat.name}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Banners Section (admin banners) */}
       {banners.length > 0 && (
@@ -253,7 +308,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Features Section (déplacée en bas, juste au-dessus du footer) */}
+      {/* Features Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
