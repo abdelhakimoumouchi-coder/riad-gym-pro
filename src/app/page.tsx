@@ -159,31 +159,33 @@ export default async function HomePage() {
               <div className="flex-1 h-px bg-gray-200" />
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {categories.map((cat: Category) => (
-                <Link
-                  key={cat.id}
-                  href={`/produits?category=${cat.slug}`}
-                  className="group rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden bg-white"
-                >
-                  <div className="relative w-full h-28 sm:h-32 bg-light-gray">
-                    <Image
-                      src={cat.image || '/placeholder.png'}
-                      alt={cat.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  </div>
-                  <div className="px-3 py-3 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-dark line-clamp-1">
-                      {cat.name}
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition" />
-                  </div>
-                </Link>
-              ))}
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                {categories.map((cat: Category) => (
+                  <Link
+                    key={cat.id}
+                    href={`/produits?category=${cat.slug}`}
+                    className="group rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden bg-white min-w-[180px] max-w-[200px] snap-start flex-shrink-0"
+                  >
+                    <div className="relative w-full h-28 sm:h-32 bg-light-gray">
+                      <Image
+                        src={cat.image || '/placeholder.png'}
+                        alt={cat.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    </div>
+                    <div className="px-3 py-3 flex items-center justify-between">
+                      <span className="text-sm font-semibold text-dark line-clamp-1">
+                        {cat.name}
+                      </span>
+                      <ArrowRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -273,10 +275,17 @@ export default async function HomePage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {saleProducts.map((product: Product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                {saleProducts.map((product: Product) => (
+                  <div
+                    key={product.id}
+                    className="min-w-[240px] max-w-[260px] snap-start flex-shrink-0"
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
