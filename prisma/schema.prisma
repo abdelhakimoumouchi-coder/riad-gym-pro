@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  RETURNED
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CCP
+  BARIDIMOB
+  VIBER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String
+  role      UserRole @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  addresses Address[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  image       String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  description     String?
+  shortDesc       String?
+  price           Float
+  comparePrice    Float?
+  cost            Float?
+  stock           Int       @default(0)
+  sku             String?   @unique
+  images          String[]
+  thumbnail       String?
+  categoryId      String
+  isNew           Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+  isOnSale        Boolean   @default(false)
+  isPack          Boolean   @default(false)
+  metaTitle       String?
+  metaDescription String?
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String?
+  guestEmail      String?
+  guestFirstName  String
+  guestLastName   String
+  guestPhone      String
+  wilayaId        String
+  commune         String
+  deliveryAddress String
+  postalCode      String?
+  subtotal        Float
+  shippingCost    Float
+  total           Float
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
+  notes           String?
+  adminNotes      String?
+  viberSent       Boolean       @default(false)
+  viberNumber     String?
+  createdAt       DateTime      @default(now())
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  canceledAt      DateTime?
+  updatedAt       DateTime      @updatedAt
+
+  user   User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  wilaya Wilaya      @relation(fields: [wilayaId], references: [id])
+  items  OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  total     Float
+  createdAt DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@map("order_items")
+}
+
+model Wilaya {
+  id           String  @id @default(cuid())
+  code         String  @unique
+  name         String
+  nameAr       String
+  shippingCost Float
+  isAlger      Boolean @default(false)
+
+  orders    Order[]
+  addresses Address[]
+
+  @@map("wilayas")
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  wilayaId   String
+  commune    String
+  address    String
+  postalCode String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wilaya Wilaya @relation(fields: [wilayaId], references: [id])
+
+  @@map("addresses")
+}
+
+model Banner {
+  id         String    @id @default(cuid())
+  title      String
+  subtitle   String?
+  image      String
+  link       String?
+  buttonText String?
+  isActive   Boolean   @default(true)
+  order      Int       @default(0)
+  startDate  DateTime?
+  endDate    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("banners")
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
