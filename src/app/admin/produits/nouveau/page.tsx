@@ -14,7 +14,6 @@ interface Category {
 
 interface ProductFormData {
   name: string;
-  slug: string;
   categoryId: string;
   description: string;
   price: string;
@@ -38,7 +37,6 @@ export default function CreateProduct() {
 
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
-    slug: '',
     categoryId: '',
     description: '',
     price: '',
@@ -76,15 +74,6 @@ export default function CreateProduct() {
     }
   };
 
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
 
@@ -93,10 +82,6 @@ export default function CreateProduct() {
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
-
-      if (name === 'name' && !formData.slug) {
-        setFormData((prev) => ({ ...prev, slug: generateSlug(value) }));
-      }
     }
   };
 
@@ -147,7 +132,6 @@ export default function CreateProduct() {
 
       const payload = {
         name: formData.name,
-        slug: formData.slug || generateSlug(formData.name),
         categoryId: formData.categoryId,
         description: formData.description,
         price: price,
@@ -157,10 +141,7 @@ export default function CreateProduct() {
         isFeatured: formData.isFeatured,
         isOnSale: formData.isOnSale,
         isPack: formData.isPack,
-        // publication immédiate
-        publishedAt: new Date().toISOString(),
         images: imageUrls,
-        thumbnail: imageUrls[0] || null,
       };
 
       const response = await fetch('/api/admin/products', {
@@ -233,19 +214,6 @@ export default function CreateProduct() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Slug
-                  </label>
-                  <input
-                    type="text"
-                    name="slug"
-                    value={formData.slug}
-                    onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
                   />
                 </div>

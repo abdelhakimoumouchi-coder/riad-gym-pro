@@ -51,7 +51,6 @@ export default function EditProduct() {
   
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     categoryId: '',
     shortDesc: '',
     description: '',
@@ -106,12 +105,11 @@ export default function EditProduct() {
       }
       
       const data = await response.json();
-      const prod: Product = data.product ?? data; // <- adapte au format { product }
+      const prod: Product = data.product ?? data;
       setProduct(prod);
       setExistingImages(Array.isArray(prod.images) ? prod.images : []);
       setFormData({
         name: prod.name ?? '',
-        slug: prod.slug ?? '',
         categoryId: prod.categoryId ?? '',
         shortDesc: prod.shortDesc || '',
         description: prod.description || '',
@@ -133,15 +131,6 @@ export default function EditProduct() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -210,7 +199,6 @@ export default function EditProduct() {
 
       const payload = {
         name: formData.name,
-        slug: formData.slug || generateSlug(formData.name),
         categoryId: formData.categoryId,
         shortDesc: formData.shortDesc,
         description: formData.description,
@@ -347,19 +335,6 @@ export default function EditProduct() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Slug
-                  </label>
-                  <input
-                    type="text"
-                    name="slug"
-                    value={formData.slug}
-                    onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
                   />
                 </div>

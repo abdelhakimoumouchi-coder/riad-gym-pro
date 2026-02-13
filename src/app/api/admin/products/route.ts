@@ -68,7 +68,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       name,
-      slug: providedSlug,
       description,
       price,
       comparePrice,
@@ -89,8 +88,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate slug
-    const slug = providedSlug || generateSlug(name);
+    // Always generate slug from name on the backend
+    const slug = generateSlug(name);
 
     // Verify category exists
     const category = await prisma.category.findUnique({

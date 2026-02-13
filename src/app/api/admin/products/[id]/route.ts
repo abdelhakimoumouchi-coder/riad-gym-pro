@@ -46,7 +46,6 @@ export async function PUT(
     const body = await request.json();
     const {
       name,
-      slug: providedSlug,
       description,
       price,
       comparePrice,
@@ -67,9 +66,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
+    // Regenerate slug if name changed, otherwise keep existing
     const slug =
-      providedSlug ||
-      (name !== existingProduct.name ? generateSlug(name) : existingProduct.slug);
+      name && name !== existingProduct.name
+        ? generateSlug(name)
+        : existingProduct.slug;
 
     if (categoryId && categoryId !== existingProduct.categoryId) {
       const category = await prisma.category.findUnique({ where: { id: categoryId } });
