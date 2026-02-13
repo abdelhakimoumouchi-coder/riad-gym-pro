@@ -73,14 +73,11 @@ export default function CheckoutPage() {
       .join('\n');
 
     return (
-      `🛒 Nouvelle commande Riad Gym Pro\n\n` +
       `👤 Nom: ${formData.fullName}\n` +
       `📞 Tel: ${formData.phone}\n` +
       `📍 Wilaya: ${selectedWilaya?.name || ''}\n` +
       `🏙️ Commune: ${formData.commune}\n\n` +
-      `📦 Produits:\n${itemsList}\n\n` +
-      `💰 Total produits: ${formatPrice(totalNonAlger)}\n\n` +
-      `⚠️ يُرجى دفع عربون 1000 دج عبر CCP قبل تأكيد الطلب.`
+      `📦 Produits:\n${itemsList}\n\n`
     );
   };
 
@@ -142,7 +139,7 @@ export default function CheckoutPage() {
         setLoading(false);
       }
     } else {
-      // Hors Alger : un seul bouton, on tente chat vers ton numéro puis fallback forward prérempli
+      // Hors Alger : Viber avec texte prérempli
       const messageBody = buildMessageBodyNonAlger();
       const encoded = encodeURIComponent(messageBody);
 
@@ -281,7 +278,7 @@ export default function CheckoutPage() {
                       <MapPin className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                       <div className="text-sm text-yellow-800">
                         <p className="font-semibold mb-1">Commande via Viber</p>
-                        <p>⚠️ يُرجى دفع عربون 1000 دج عبر CCP avant تأكيد الطلب.</p>
+                        <p dir="rtl">يُرجى دفع عربون 1000 دج عبر ccp ⚠️</p>
                       </div>
                     </div>
                   </div>
