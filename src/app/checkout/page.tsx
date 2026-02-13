@@ -139,7 +139,7 @@ export default function CheckoutPage() {
         setLoading(false);
       }
     } else {
-      // Hors Alger : Viber avec texte prérempli
+      // Hors Alger : un seul bouton, on tente chat vers ton numéro puis fallback forward prérempli
       const messageBody = buildMessageBodyNonAlger();
       const encoded = encodeURIComponent(messageBody);
 
@@ -278,7 +278,7 @@ export default function CheckoutPage() {
                       <MapPin className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                       <div className="text-sm text-yellow-800">
                         <p className="font-semibold mb-1">Commande via Viber</p>
-                        <p dir="rtl">يُرجى دفع عربون 1000 دج عبر ccp ⚠️</p>
+                        <p lang='ar'>⚠️ CCP يُرجى دفع عربون 1000 دج عبر</p>
                       </div>
                     </div>
                   </div>
