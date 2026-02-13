@@ -8,9 +8,7 @@ export async function GET() {
       include: {
         _count: {
           select: {
-            products: {
-              where: { publishedAt: { not: null } },
-            },
+            products: true, // plus de filtre publishedAt
           },
         },
       },

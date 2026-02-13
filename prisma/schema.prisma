@@ -65,30 +65,23 @@ model Category {
 }
 
 model Product {
-  id              String    @id @default(cuid())
-  name            String
-  slug            String
-  description     String?
-  shortDesc       String?
-  price           Float
-  comparePrice    Float?
-  cost            Float?
-  stock           Int       @default(0)
-  sku             String?
-  images          String[]
-  thumbnail       String?
-  categoryId      String
-  isNew           Boolean   @default(false)
-  isFeatured      Boolean   @default(false)
-  isOnSale        Boolean   @default(false)
-  isPack          Boolean   @default(false)
-  metaTitle       String?
-  metaDescription String?
-  publishedAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  slug         String           // doublons autorisés
+  description  String?
+  price        Float
+  comparePrice Float?
+  stock        Int      @default(0)
+  images       String[]
+  categoryId   String
+  isNew        Boolean  @default(false)
+  isFeatured   Boolean  @default(false)
+  isOnSale     Boolean  @default(false)
+  isPack       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
   @@map("products")

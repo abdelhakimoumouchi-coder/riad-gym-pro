@@ -48,22 +48,15 @@ export async function PUT(
       name,
       slug: providedSlug,
       description,
-      shortDesc,
       price,
       comparePrice,
-      cost,
       stock,
-      sku,
       images,
-      thumbnail,
       categoryId,
       isNew,
       isFeatured,
       isOnSale,
       isPack,
-      metaTitle,
-      metaDescription,
-      publishedAt,
     } = body;
 
     const existingProduct = await prisma.product.findUnique({
@@ -78,8 +71,6 @@ export async function PUT(
       providedSlug ||
       (name !== existingProduct.name ? generateSlug(name) : existingProduct.slug);
 
-    // Vérification d’unicité du slug supprimée
-
     if (categoryId && categoryId !== existingProduct.categoryId) {
       const category = await prisma.category.findUnique({ where: { id: categoryId } });
       if (!category) {
@@ -93,7 +84,6 @@ export async function PUT(
         name: name ?? existingProduct.name,
         slug,
         description: description !== undefined ? description : existingProduct.description,
-        shortDesc: shortDesc !== undefined ? shortDesc : existingProduct.shortDesc,
         price: price !== undefined ? parseFloat(price) : existingProduct.price,
         comparePrice:
           comparePrice !== undefined
@@ -101,30 +91,13 @@ export async function PUT(
               ? parseFloat(comparePrice)
               : null
             : existingProduct.comparePrice,
-        cost:
-          cost !== undefined
-            ? cost
-              ? parseFloat(cost)
-              : null
-            : existingProduct.cost,
         stock: stock !== undefined ? parseInt(stock) : existingProduct.stock,
-        sku: sku !== undefined ? sku : existingProduct.sku,
         images: images !== undefined ? images : existingProduct.images,
-        thumbnail: thumbnail !== undefined ? thumbnail : existingProduct.thumbnail,
         categoryId: categoryId || existingProduct.categoryId,
         isNew: isNew !== undefined ? !!isNew : existingProduct.isNew,
         isFeatured: isFeatured !== undefined ? !!isFeatured : existingProduct.isFeatured,
         isOnSale: isOnSale !== undefined ? !!isOnSale : existingProduct.isOnSale,
         isPack: isPack !== undefined ? !!isPack : existingProduct.isPack,
-        metaTitle: metaTitle !== undefined ? metaTitle : existingProduct.metaTitle,
-        metaDescription:
-          metaDescription !== undefined ? metaDescription : existingProduct.metaDescription,
-        publishedAt:
-          publishedAt !== undefined
-            ? publishedAt
-              ? new Date(publishedAt)
-              : null
-            : existingProduct.publishedAt,
       },
       include: {
         category: true,

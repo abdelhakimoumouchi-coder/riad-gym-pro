@@ -19,7 +19,6 @@ export async function GET(request: Request) {
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
-        { sku: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -71,22 +70,15 @@ export async function POST(request: Request) {
       name,
       slug: providedSlug,
       description,
-      shortDesc,
       price,
       comparePrice,
-      cost,
       stock,
-      sku,
       images,
-      thumbnail,
       categoryId,
       isNew,
       isFeatured,
       isOnSale,
       isPack,
-      metaTitle,
-      metaDescription,
-      publishedAt,
     } = body;
 
     // Validation
@@ -97,10 +89,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate or validate slug
+    // Generate slug
     const slug = providedSlug || generateSlug(name);
-
-    // Vérification d’unicité du slug supprimée
 
     // Verify category exists
     const category = await prisma.category.findUnique({
@@ -120,22 +110,15 @@ export async function POST(request: Request) {
         name,
         slug,
         description,
-        shortDesc,
         price: parseFloat(price),
         comparePrice: comparePrice ? parseFloat(comparePrice) : null,
-        cost: cost ? parseFloat(cost) : null,
         stock: parseInt(stock) || 0,
-        sku,
         images: images || [],
-        thumbnail,
         categoryId,
         isNew: !!isNew,
         isFeatured: !!isFeatured,
         isOnSale: !!isOnSale,
         isPack: !!isPack,
-        metaTitle,
-        metaDescription,
-        publishedAt: publishedAt ? new Date(publishedAt) : null,
       },
       include: {
         category: true,

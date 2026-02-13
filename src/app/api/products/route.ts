@@ -13,52 +13,30 @@ export async function GET(request: Request) {
     const page = searchParams.get('page') || '1';
     const perPage = parseInt(searchParams.get('perPage') || '12');
 
-    // Build where clause
-    const where: any = {
-      publishedAt: { not: null },
-    };
+    const where: any = {};
 
     if (category) {
       where.category = { slug: category };
     }
-
-    if (isNew === 'true') {
-      where.isNew = true;
-    }
-
-    if (isOnSale === 'true') {
-      where.isOnSale = true;
-    }
-
-    if (isPack === 'true') {
-      where.isPack = true;
-    }
+    if (isNew === 'true') where.isNew = true;
+    if (isOnSale === 'true') where.isOnSale = true;
+    if (isPack === 'true') where.isPack = true;
 
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
-        { shortDesc: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    // Get total count
     const total = await prisma.product.count({ where });
-
-    // Get products
     const skip = (parseInt(page) - 1) * perPage;
     const take = limit ? parseInt(limit) : perPage;
 
     const products = await prisma.product.findMany({
       where,
       include: {
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
+        category: { select: { id: true, name: true, slug: true } },
       },
       orderBy: { createdAt: 'desc' },
       skip,
