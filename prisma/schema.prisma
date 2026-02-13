@@ -67,14 +67,14 @@ model Category {
 model Product {
   id              String    @id @default(cuid())
   name            String
-  slug            String    @unique
+  slug            String
   description     String?
   shortDesc       String?
   price           Float
   comparePrice    Float?
   cost            Float?
   stock           Int       @default(0)
-  sku             String?   @unique
+  sku             String?
   images          String[]
   thumbnail       String?
   categoryId      String

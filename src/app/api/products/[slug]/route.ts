@@ -8,9 +8,12 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    // Get product by slug
-    const product = await prisma.product.findUnique({
-      where: { slug, publishedAt: { not: null } },
+    // Get product by slug (slug non unique -> findFirst)
+    const product = await prisma.product.findFirst({
+      where: {
+        slug,
+        publishedAt: { not: null },
+      },
       include: {
         category: {
           select: {

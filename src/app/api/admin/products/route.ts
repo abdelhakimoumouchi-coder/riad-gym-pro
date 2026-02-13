@@ -100,17 +100,7 @@ export async function POST(request: Request) {
     // Generate or validate slug
     const slug = providedSlug || generateSlug(name);
 
-    // Check if slug already exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { slug },
-    });
-
-    if (existingProduct) {
-      return NextResponse.json(
-        { error: 'A product with this slug already exists' },
-        { status: 409 }
-      );
-    }
+    // Vérification d’unicité du slug supprimée
 
     // Verify category exists
     const category = await prisma.category.findUnique({

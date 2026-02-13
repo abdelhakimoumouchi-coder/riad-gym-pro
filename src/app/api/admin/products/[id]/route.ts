@@ -78,15 +78,7 @@ export async function PUT(
       providedSlug ||
       (name !== existingProduct.name ? generateSlug(name) : existingProduct.slug);
 
-    if (slug !== existingProduct.slug) {
-      const slugConflict = await prisma.product.findUnique({ where: { slug } });
-      if (slugConflict) {
-        return NextResponse.json(
-          { error: 'A product with this slug already exists' },
-          { status: 409 }
-        );
-      }
-    }
+    // Vérification d’unicité du slug supprimée
 
     if (categoryId && categoryId !== existingProduct.categoryId) {
       const category = await prisma.category.findUnique({ where: { id: categoryId } });
