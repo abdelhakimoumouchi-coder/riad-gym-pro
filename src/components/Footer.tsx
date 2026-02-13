@@ -1,6 +1,17 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
+import { Instagram, Phone, MapPin } from 'lucide-react';
 import { VIBER_NUMBER } from '@/lib/constants';
+
+const TikTokIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M21 8.13a5.83 5.83 0 0 1-3.33-1.06 6.36 6.36 0 0 1-1.32-1.32A5.86 5.86 0 0 1 15.3 3h-2.73v12.37a2.07 2.07 0 0 1-2.08 2.07A2.07 2.07 0 0 1 8.42 15a2.07 2.07 0 0 1 2.07-2.07 2 2 0 0 1 .47.06V9.8A5.44 5.44 0 0 0 10.49 9 5.74 5.74 0 0 0 4.7 14.7 5.74 5.74 0 0 0 10.49 20a5.74 5.74 0 0 0 5.79-5.79V9.83a8.35 8.35 0 0 0 4.72 1.52Z" />
+  </svg>
+);
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -19,33 +30,22 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href={`viber://chat?number=${encodeURIComponent(VIBER_NUMBER)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-dark-lighter hover:bg-primary transition-colors flex items-center justify-center"
-                aria-label="Viber"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M11.4 0C9.473.028 5.333.344 3.02 2.467 1.302 4.187.696 6.7.633 9.817.57 12.933.488 18.617 6.55 20.41h.005l-.004 2.416s-.037.98.589 1.177c.716.232 1.04-.223 3.267-2.883 3.724.323 6.584-.417 6.909-.525.752-.252 5.007-.815 5.695-6.648.713-6.035-.421-9.849-2.595-11.474C18.421.506 14.469.029 11.4 0zm.059 1.617c2.88-.007 6.44.397 8.230 1.826 1.944 1.483 2.888 4.877 2.267 10.157-.605 5.15-4.145 5.449-4.790 5.668-.285.097-2.888.766-6.089.486 0 0-2.426 2.917-3.185 3.678-.121.121-.26.167-.352.145-.13-.03-.166-.188-.165-.414l.02-4.016c-5.397-1.572-5.05-6.573-4.998-9.196.052-2.623.587-4.803 2.015-6.231C6.15 1.982 9.597 1.617 11.459 1.617z"/>
-                </svg>
-              </a>
-              <a
-                href="https://facebook.com/riadgym"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-dark-lighter hover:bg-primary transition-colors flex items-center justify-center"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="https://instagram.com/riadgym"
+                href="https://www.instagram.com/ri.gym.pro?igsh=MXYzczhnbjk1bHpsdw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-dark-lighter hover:bg-primary transition-colors flex items-center justify-center"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@ri.gym.pro"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-dark-lighter hover:bg-primary transition-colors flex items-center justify-center"
+                aria-label="TikTok"
+              >
+                <TikTokIcon className="w-5 h-5" />
               </a>
             </div>
           </div>

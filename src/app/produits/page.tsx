@@ -129,7 +129,11 @@ function ProductsContent() {
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters Sidebar */}
-            <aside className="lg:w-64 flex-shrink-0">
+            <aside
+              className={`lg:w-64 flex-shrink-0 ${
+                showFilters ? 'block' : 'hidden lg:block'
+              }`}
+            >
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-dark flex items-center gap-2">
