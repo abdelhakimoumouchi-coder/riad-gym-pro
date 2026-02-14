@@ -11,20 +11,34 @@ export async function GET(request: Request) {
     const page = searchParams.get('page') || '1';
     const perPage = parseInt(searchParams.get('perPage') || searchParams.get('limit') || '20');
     const search = searchParams.get('search');
+    const region = searchParams.get('region');
 
-    // Uniquement Alger (code 16) via relation
-    const where: any = {
-      wilaya: { code: '16' },
-    };
+    const where: any = {};
+
+    if (region === 'hors-wilaya') {
+      where.wilaya = { code: { not: '16' } };
+    } else {
+      where.wilaya = { code: '16' };
+    }
 
     if (search) {
-      where.OR = [
-        { orderNumber: { contains: search, mode: 'insensitive' } },
-        { guestFirstName: { contains: search, mode: 'insensitive' } },
-        { guestLastName: { contains: search, mode: 'insensitive' } },
-        { guestPhone: { contains: search, mode: 'insensitive' } },
-        { guestEmail: { contains: search, mode: 'insensitive' } },
+      const wilayaFilter = region === 'hors-wilaya'
+        ? { code: { not: '16' } }
+        : { code: '16' };
+
+      where.AND = [
+        { wilaya: wilayaFilter },
+        {
+          OR: [
+            { orderNumber: { contains: search, mode: 'insensitive' } },
+            { guestFirstName: { contains: search, mode: 'insensitive' } },
+            { guestLastName: { contains: search, mode: 'insensitive' } },
+            { guestPhone: { contains: search, mode: 'insensitive' } },
+            { guestEmail: { contains: search, mode: 'insensitive' } },
+          ],
+        },
       ];
+      delete where.wilaya;
     }
 
     const total = await prisma.order.count({ where });

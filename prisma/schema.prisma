@@ -104,6 +104,7 @@ model Order {
   total           Float
   status          OrderStatus   @default(PENDING)
   paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
+  paymentReceipt  String?
   notes           String?
   adminNotes      String?
   viberSent       Boolean       @default(false)

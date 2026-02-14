@@ -6,8 +6,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { CartItem } from '@/types';
 import { formatPrice, WILAYAS, isValidPhone } from '@/lib/utils';
-import { VIBER_NUMBER, INPUT_CLASS } from '@/lib/constants';
-import { Loader2, MapPin } from 'lucide-react';
+import { INPUT_CLASS } from '@/lib/constants';
+import { Loader2, MapPin, Upload, Trash2 } from 'lucide-react';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 const ALGER_COMMUNES = [
   'Alger-Centre','Bab El Oued','El Madania','El Mouradia','Hydra','Kouba','Bachdjerrah','Bir Mourad Rais',
@@ -22,6 +23,10 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  const [receiptImage, setReceiptImage] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -43,42 +48,43 @@ export default function CheckoutPage() {
     setError('');
   };
 
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setReceiptImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeReceipt = () => {
+    setReceiptImage(null);
+    setReceiptPreview(null);
+  };
+
+  const isAlger = formData.wilaya === '16';
+
   const validateForm = () => {
     if (!formData.fullName.trim()) return 'Le nom complet est requis';
     if (!formData.phone.trim()) return 'Le téléphone est requis';
     if (!isValidPhone(formData.phone)) return 'Numéro de téléphone invalide';
     if (!formData.wilaya) return 'Veuillez sélectionner une wilaya';
-    if (!formData.commune.trim()) return 'La commune est requise';
+    if (isAlger && !formData.commune.trim()) return 'La commune est requise';
+    if (!isAlger && !receiptImage) return 'Veuillez uploader la photo du reçu de versement';
+    if (!turnstileToken) return 'Veuillez compléter la vérification de sécurité';
     return null;
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingCost = 500; // Alger uniquement
-  const totalAlger = subtotal + shippingCost;
-  const totalNonAlger = subtotal; // hors Alger, pas de livraison affichée
-
-  const selectedWilaya = WILAYAS.find((w) => w.code === formData.wilaya);
-  const isAlger = formData.wilaya === '16';
 
   const splitName = () => {
     const parts = formData.fullName.trim().split(/\s+/);
     const first = parts[0] || 'Client';
     const last = parts.slice(1).join(' ') || 'Client';
     return { first, last };
-  };
-
-  const buildMessageBodyNonAlger = () => {
-    const itemsList = cart
-      .map((item) => `${item.name} x${item.quantity} (${formatPrice(item.price * item.quantity)})`)
-      .join('\n');
-
-    return (
-      `👤 Nom: ${formData.fullName}\n` +
-      `📞 Tel: ${formData.phone}\n` +
-      `📍 Wilaya: ${selectedWilaya?.name || ''}\n` +
-      `🏙️ Commune: ${formData.commune}\n\n` +
-      `📦 Produits:\n${itemsList}\n\n`
-    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,71 +96,62 @@ export default function CheckoutPage() {
     }
 
     const { first, last } = splitName();
+    setLoading(true);
+    setError('');
 
-    if (isAlger) {
-      // Alger : enregistrement en base (+500 DA)
-      setLoading(true);
-      setError('');
-      try {
-        const orderData = {
-          guestFirstName: first,
-          guestLastName: last,
-          guestPhone: formData.phone,
-          guestEmail: null,
-          wilayaId: formData.wilaya,
-          commune: formData.commune,
-          deliveryAddress: formData.commune,
-          postalCode: null,
-          items: cart.map((item) => ({
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          subtotal,
-          shippingCost,
-          total: totalAlger,
-          paymentMethod: 'CASH_ON_DELIVERY',
-        };
-
-        const res = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData),
+    try {
+      let receiptBase64: string | null = null;
+      if (!isAlger && receiptImage) {
+        receiptBase64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(receiptImage);
         });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Erreur lors de la création de la commande');
-        }
-
-        localStorage.setItem('cart', '[]');
-        window.dispatchEvent(new Event('cartUpdated'));
-        setSuccess(true);
-        setTimeout(() => {
-          router.push('/');
-        }, 1500);
-      } catch (err: any) {
-        setError(err.message || 'Une erreur est survenue');
-      } finally {
-        setLoading(false);
       }
-    } else {
-      // Hors Alger : un seul bouton, on tente chat vers ton numéro puis fallback forward prérempli
-      const messageBody = buildMessageBodyNonAlger();
-      const encoded = encodeURIComponent(messageBody);
 
-      // Copie pour pouvoir coller si le texte est ignoré
-      try { await navigator.clipboard.writeText(messageBody); } catch {}
+      const orderData = {
+        guestFirstName: first,
+        guestLastName: last,
+        guestPhone: formData.phone,
+        guestEmail: null,
+        wilayaId: formData.wilaya,
+        commune: formData.commune || '',
+        deliveryAddress: formData.commune || '',
+        postalCode: null,
+        items: cart.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        subtotal,
+        shippingCost: 0,
+        total: subtotal,
+        paymentMethod: isAlger ? 'CASH_ON_DELIVERY' : 'CCP',
+        paymentReceipt: receiptBase64,
+        turnstileToken,
+      };
 
-      // 1) Chat direct vers ton numéro (peut ignorer le texte sur iOS)
-      const chatUrl = `viber://chat?number=${encodeURIComponent(VIBER_NUMBER)}&text=${encoded}`;
-      // 2) Fallback forward (prérempli mais il faudra sélectionner le contact)
-      const forwardUrl = `viber://forward?text=${encoded}`;
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
 
-      window.location.href = chatUrl;
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erreur lors de la création de la commande');
+      }
+
+      localStorage.setItem('cart', '[]');
+      window.dispatchEvent(new Event('cartUpdated'));
+      setSuccess(true);
       setTimeout(() => {
-        window.location.href = forwardUrl;
-      }, 1200);
+        router.push('/');
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Une erreur est survenue');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -243,7 +240,7 @@ export default function CheckoutPage() {
 
                     <div className="md:col-span-1">
                       <label className="block text-sm font-medium text-dark mb-2">
-                        Commune <span className="text-red-600">*</span>
+                        Commune {isAlger && <span className="text-red-600">*</span>}
                       </label>
                       {communesForWilaya ? (
                         <select
@@ -264,33 +261,96 @@ export default function CheckoutPage() {
                           name="commune"
                           value={formData.commune}
                           onChange={handleChange}
+                          placeholder="Optionnel"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          required
                         />
                       )}
                     </div>
                   </div>
                 </div>
 
+                {/* Section upload reçu pour hors Alger */}
                 {!isAlger && formData.wilaya && (
-                  <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
-                    <div className="flex gap-3">
-                      <MapPin className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-yellow-800">
-                        <p className="font-semibold mb-1">Commande via Viber</p>
-                        <p lang='ar'>⚠️ CCP يُرجى دفع عربون 1000 دج عبر</p>
+                  <div className="space-y-4">
+                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                      <div className="flex gap-3">
+                        <MapPin className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-yellow-800">
+                          <p className="font-semibold mb-1">Confirmation de commande</p>
+                          <p>
+                            Pour confirmer votre commande, veuillez envoyer une photo du reçu du
+                            versement de <strong>1 000 DA</strong> au CCP ou BaridiMob suivant :
+                          </p>
+                          <ul className="mt-2 space-y-1 list-disc list-inside">
+                            <li><strong>CCP :</strong> 00799999 99 clé 99</li>
+                            <li><strong>BaridiMob :</strong> 00799999 0079999999</li>
+                          </ul>
+                          <p className="mt-2" lang="ar" dir="rtl">
+                            ⚠️ يُرجى دفع عربون 1000 دج عبر CCP أو BaridiMob
+                          </p>
+                        </div>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-dark mb-2">
+                        Photo du reçu de versement <span className="text-red-600">*</span>
+                      </label>
+
+                      {receiptPreview ? (
+                        <div className="relative inline-block">
+                          <img
+                            src={receiptPreview}
+                            alt="Reçu de versement"
+                            className="w-64 h-48 object-cover rounded-lg border border-gray-300"
+                          />
+                          <button
+                            type="button"
+                            onClick={removeReceipt}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors">
+                          <div className="text-center">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <span className="text-sm text-gray-600">
+                              Cliquez pour uploader la photo du reçu
+                            </span>
+                            <p className="text-xs text-gray-400 mt-1">PNG, JPG, JPEG</p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleReceiptChange}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
                     </div>
                   </div>
                 )}
 
+                {/* Cloudflare Turnstile CAPTCHA */}
+                <div className="flex justify-center">
+                  <Turnstile
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileToken(null)}
+                    options={{ theme: 'light' }}
+                  />
+                </div>
+
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !turnstileToken}
                   className="w-full bg-primary hover:bg-primary-dark text-white py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {isAlger ? 'Commander' : 'Commander sur Viber'}
+                  Commander
                 </button>
               </form>
             </div>
@@ -311,22 +371,9 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                <div className="space-y-3 mb-6 pb-6 border-b">
-                  <div className="flex justify-between text-gray-700">
-                    <span>Sous-total</span>
-                    <span className="font-semibold">{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-gray-700">
-                    <span>Livraison (Alger)</span>
-                    <span className="font-semibold">{formatPrice(shippingCost)}</span>
-                  </div>
-                </div>
-
                 <div className="flex justify-between text-xl font-bold text-dark mb-6">
                   <span>Total</span>
-                  <span className="text-primary">
-                    {isAlger ? formatPrice(totalAlger) : formatPrice(totalNonAlger)}
-                  </span>
+                  <span className="text-primary">{formatPrice(subtotal)}</span>
                 </div>
 
                 <div className="space-y-2 text-sm text-gray-600">

@@ -4,6 +4,20 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generateOrderNumber } from '@/lib/utils';
 
+async function verifyTurnstile(token: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return false;
+
+  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `secret=${secret}&response=${token}`,
+  });
+
+  const data = await res.json();
+  return data.success === true;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -13,13 +27,31 @@ export async function POST(request: Request) {
       guestLastName,
       guestPhone,
       guestEmail,
-      wilayaId,        // peut être un id ou un code
+      wilayaId,
       commune,
       deliveryAddress,
       postalCode,
       paymentMethod,
+      paymentReceipt,
+      turnstileToken,
       notes,
     } = body;
+
+    // Vérification CAPTCHA Turnstile
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: 'Vérification de sécurité requise' },
+        { status: 400 }
+      );
+    }
+
+    const isCaptchaValid = await verifyTurnstile(turnstileToken);
+    if (!isCaptchaValid) {
+      return NextResponse.json(
+        { error: 'Échec de la vérification de sécurité. Veuillez réessayer.' },
+        { status: 403 }
+      );
+    }
 
     // Validation
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -29,7 +61,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!guestFirstName || !guestLastName || !guestPhone || !wilayaId || !commune || !deliveryAddress) {
+    if (!guestFirstName || !guestLastName || !guestPhone || !wilayaId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -68,7 +100,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Get wilaya (toujours requise, mais sans frais de livraison)
+    // Get wilaya
     const wilaya = await prisma.wilaya.findFirst({
       where: {
         OR: [
@@ -85,7 +117,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate totals (pas de frais de livraison)
+    // Calculate totals
     let subtotal = 0;
     const orderItems = items.map((item: any) => {
       const product = products.find((p: any) => p.id === item.productId);
@@ -100,8 +132,8 @@ export async function POST(request: Request) {
       };
     });
 
-    const shippingCost = 0;     // livraison supprimée
-    const total = subtotal;     // total = sous-total
+    const shippingCost = 0;
+    const total = subtotal;
 
     // Create order with items and decrement stock
     const order = await prisma.$transaction(async (tx: any) => {
@@ -114,13 +146,14 @@ export async function POST(request: Request) {
           guestPhone,
           guestEmail: guestEmail || null,
           wilayaId: wilaya.id,
-          commune,
-          deliveryAddress,
+          commune: commune || '',
+          deliveryAddress: deliveryAddress || commune || '',
           postalCode,
           subtotal,
           shippingCost,
           total,
           paymentMethod: paymentMethod || 'CASH_ON_DELIVERY',
+          paymentReceipt: paymentReceipt || null,
           notes,
           status: 'PENDING',
           items: {

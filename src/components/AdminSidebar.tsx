@@ -10,6 +10,7 @@ import {
   LogOut,
   List,
   Plus,
+  Truck,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 
@@ -56,17 +57,31 @@ export default function AdminSidebar() {
         </div>
 
         {/* Commandes */}
-        <Link
-          href="/admin/commandes"
-          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-            isActive('/admin/commandes') || pathname?.startsWith('/admin/commandes/')
-              ? 'bg-primary text-white'
-              : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
-          }`}
-        >
-          <ShoppingCart className="w-5 h-5" />
-          <span className="font-medium">Commandes</span>
-        </Link>
+        <div className="space-y-1">
+          <div className="text-gray-400 text-xs font-semibold uppercase px-4">Commandes</div>
+          <Link
+            href="/admin/commandes"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/admin/commandes')
+                ? 'bg-primary text-white'
+                : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
+            }`}
+          >
+            <ShoppingCart className="w-5 h-5" />
+            <span className="font-medium">Alger</span>
+          </Link>
+          <Link
+            href="/admin/commandes-hors-wilaya"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/admin/commandes-hors-wilaya')
+                ? 'bg-primary text-white'
+                : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
+            }`}
+          >
+            <Truck className="w-5 h-5" />
+            <span className="font-medium">Hors Wilaya</span>
+          </Link>
+        </div>
 
         {/* Catégories */}
         <Link
