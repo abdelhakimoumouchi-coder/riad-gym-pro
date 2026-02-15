@@ -23,6 +23,7 @@ interface ProductFormData {
   isFeatured: boolean;
   isOnSale: boolean;
   isPack: boolean;
+  displayOrder: string;
 }
 
 export default function CreateProduct() {
@@ -46,6 +47,7 @@ export default function CreateProduct() {
     isFeatured: false,
     isOnSale: false,
     isPack: false,
+    displayOrder: '0',
   });
 
   useEffect(() => {
@@ -141,6 +143,7 @@ export default function CreateProduct() {
         isFeatured: formData.isFeatured,
         isOnSale: formData.isOnSale,
         isPack: formData.isPack,
+        displayOrder: parseInt(formData.displayOrder) || 0,
         images: imageUrls,
       };
 
@@ -299,6 +302,21 @@ export default function CreateProduct() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Priorité d&#39;affichage
+                  </label>
+                  <input
+                    type="number"
+                    name="displayOrder"
+                    value={formData.displayOrder}
+                    onChange={handleInputChange}
+                    placeholder="0"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Plus le chiffre est élevé, plus le produit apparaît en premier</p>
+                </div>
               </div>
             </div>
 
@@ -407,7 +425,7 @@ export default function CreateProduct() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#D4AF37] hover:bg-[#c29c30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37]"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#D4AF37] hover:bg-[#c29c30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37] disabled:opacity-50"
               >
                 <Save className="w-4 h-4 mr-2" />
                 {loading ? 'Enregistrement...' : 'Enregistrer'}

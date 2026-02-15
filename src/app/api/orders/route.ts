@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generateOrderNumber } from '@/lib/utils';
+import { sendTelegramNotification } from '@/lib/telegram';
 
 async function verifyTurnstile(token: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
@@ -183,6 +184,9 @@ export async function POST(request: Request) {
 
       return newOrder;
     });
+
+    // Envoyer notification Telegram (sans bloquer la réponse)
+    sendTelegramNotification(order).catch(console.error);
 
     return NextResponse.json(
       { message: 'Order created successfully', order },

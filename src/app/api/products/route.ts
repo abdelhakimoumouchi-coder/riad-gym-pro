@@ -38,7 +38,10 @@ export async function GET(request: Request) {
       include: {
         category: { select: { id: true, name: true, slug: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { displayOrder: 'desc' },
+        { createdAt: 'desc' },
+      ],
       skip,
       take,
     });

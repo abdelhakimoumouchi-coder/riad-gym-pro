@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Loading from '@/components/Loading';
 import { Product, Category } from '@/types';
-import { Filter } from 'lucide-react';
+import { Filter, Search, X } from 'lucide-react';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
@@ -25,7 +25,7 @@ function ProductsContent() {
   const [isOnSale, setIsOnSale] = useState(false);
   const [isPack, setIsPack] = useState(false);
   const [search, setSearch] = useState('');
-  const [filtersReady, setFiltersReady] = useState(false); // NEW
+  const [filtersReady, setFiltersReady] = useState(false);
 
   // Helper to sync category with URL
   const setCategory = (slug: string) => {
@@ -34,19 +34,17 @@ function ProductsContent() {
 
     if (slug) {
       params.set('category', slug);
-      params.delete('categorie'); // clean legacy param
+      params.delete('categorie');
     } else {
       params.delete('category');
       params.delete('categorie');
     }
 
-    // preserve other filters/search/pagination
-    params.delete('page'); // reset page on change
+    params.delete('page');
     router.push(`/produits?${params.toString()}`, { scroll: false });
   };
 
   useEffect(() => {
-    // Get filters from URL (with backward compatibility)
     const categoryParam = searchParams.get('category') || searchParams.get('categorie');
     const newParam = searchParams.get('nouveautes');
     const saleParam = searchParams.get('promotions');
@@ -59,21 +57,19 @@ function ProductsContent() {
     if (packParam === 'true') setIsPack(true);
     if (searchParam) setSearch(searchParam);
 
-    // Fetch categories
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data.categories || []))
       .catch(console.error)
-      .finally(() => setFiltersReady(true)); // NEW: filtres prêts
+      .finally(() => setFiltersReady(true));
   }, [searchParams]);
 
-  // Reset pagination to page 1 when filters/search change
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory, isNew, isOnSale, isPack, search]);
 
   useEffect(() => {
-    if (!filtersReady) return; // NEW: évite le fetch initial « toutes catégories »
+    if (!filtersReady) return;
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, isNew, isOnSale, isPack, search, currentPage, filtersReady]);
@@ -120,11 +116,34 @@ function ProductsContent() {
       <div className="min-h-screen bg-light-gray">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-4xl font-bold text-dark mb-2 font-display">Nos Produits</h1>
             <p className="text-gray-600">
               Découvrez notre large gamme de compléments alimentaires sportifs
             </p>
+          </div>
+
+          {/* Barre de recherche */}
+          <div className="mb-8">
+            <div className="relative max-w-xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Rechercher un produit..."
+                className="w-full pl-12 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm shadow-sm"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-dark"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">

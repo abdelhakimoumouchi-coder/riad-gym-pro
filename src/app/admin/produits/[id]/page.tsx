@@ -17,21 +17,16 @@ interface Product {
   name: string;
   slug: string;
   categoryId: string;
-  shortDesc: string | null;
   description: string | null;
   price: number;
   comparePrice: number | null;
-  cost: number | null;
-  sku: string | null;
   stock: number;
   images: string[];
   isNew: boolean;
   isFeatured: boolean;
   isOnSale: boolean;
   isPack: boolean;
-  metaTitle: string | null;
-  metaDescription: string | null;
-  publishedAt: string | null;
+  displayOrder: number;
 }
 
 export default function EditProduct() {
@@ -52,20 +47,15 @@ export default function EditProduct() {
   const [formData, setFormData] = useState({
     name: '',
     categoryId: '',
-    shortDesc: '',
     description: '',
     price: '',
     comparePrice: '',
-    cost: '',
-    sku: '',
     stock: '0',
     isNew: false,
     isFeatured: false,
     isOnSale: false,
     isPack: false,
-    metaTitle: '',
-    metaDescription: '',
-    published: false,
+    displayOrder: '0',
   });
 
   useEffect(() => {
@@ -111,20 +101,15 @@ export default function EditProduct() {
       setFormData({
         name: prod.name ?? '',
         categoryId: prod.categoryId ?? '',
-        shortDesc: prod.shortDesc || '',
         description: prod.description || '',
         price: prod.price !== undefined && prod.price !== null ? prod.price.toString() : '',
         comparePrice: prod.comparePrice !== undefined && prod.comparePrice !== null ? prod.comparePrice.toString() : '',
-        cost: prod.cost !== undefined && prod.cost !== null ? prod.cost.toString() : '',
-        sku: prod.sku || '',
         stock: prod.stock !== undefined && prod.stock !== null ? prod.stock.toString() : '0',
         isNew: !!prod.isNew,
         isFeatured: !!prod.isFeatured,
         isOnSale: !!prod.isOnSale,
         isPack: !!prod.isPack,
-        metaTitle: prod.metaTitle || '',
-        metaDescription: prod.metaDescription || '',
-        published: !!prod.publishedAt,
+        displayOrder: prod.displayOrder !== undefined && prod.displayOrder !== null ? prod.displayOrder.toString() : '0',
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -200,24 +185,16 @@ export default function EditProduct() {
       const payload = {
         name: formData.name,
         categoryId: formData.categoryId,
-        shortDesc: formData.shortDesc,
         description: formData.description,
         price: price,
         comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
-        cost: formData.cost ? parseFloat(formData.cost) : null,
-        sku: formData.sku,
         stock: parseInt(formData.stock),
         isNew: formData.isNew,
         isFeatured: formData.isFeatured,
         isOnSale: formData.isOnSale,
         isPack: formData.isPack,
-        metaTitle: formData.metaTitle,
-        metaDescription: formData.metaDescription,
-        publishedAt: formData.published 
-          ? (product?.publishedAt || new Date().toISOString())
-          : null,
+        displayOrder: parseInt(formData.displayOrder) || 0,
         images: allImages,
-        thumbnail: allImages[0] || null,
       };
 
       const response = await fetch(`/api/admin/products/${params.id}`, {
@@ -361,20 +338,7 @@ export default function EditProduct() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description courte
-                  </label>
-                  <textarea
-                    name="shortDesc"
-                    value={formData.shortDesc}
-                    onChange={handleInputChange}
-                    rows={2}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description complète
+                    Description
                   </label>
                   <textarea
                     name="description"
@@ -391,7 +355,7 @@ export default function EditProduct() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Prix et inventaire</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Prix <span className="text-red-500">*</span>
@@ -423,33 +387,6 @@ export default function EditProduct() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Coût
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name="cost"
-                    value={formData.cost}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SKU
-                  </label>
-                  <input
-                    type="text"
-                    name="sku"
-                    value={formData.sku}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Stock
                   </label>
                   <input
@@ -459,6 +396,21 @@ export default function EditProduct() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {"Priorité d'affichage"}
+                  </label>
+                  <input
+                    type="number"
+                    name="displayOrder"
+                    value={formData.displayOrder}
+                    onChange={handleInputChange}
+                    placeholder="0"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">{"Plus le chiffre est élevé, plus le produit apparaît en premier"}</p>
                 </div>
               </div>
             </div>
@@ -582,53 +534,6 @@ export default function EditProduct() {
                   <span className="text-sm font-medium text-gray-700">Pack</span>
                 </label>
               </div>
-            </div>
-
-            {/* SEO */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">SEO</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Meta titre
-                  </label>
-                  <input
-                    type="text"
-                    name="metaTitle"
-                    value={formData.metaTitle}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Meta description
-                  </label>
-                  <textarea
-                    name="metaDescription"
-                    value={formData.metaDescription}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Publish */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="published"
-                  checked={formData.published}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-[#D4AF37] focus:ring-[#D4AF37] border-gray-300 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">Publié</span>
-              </label>
             </div>
 
             {/* Actions */}

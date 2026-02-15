@@ -4,6 +4,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Truck, Shield, CreditCard } from
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
+import SearchBar from '@/components/SearchBar';
 import { Product } from '@/types';
 import { API_BASE_URL } from '@/lib/constants';
 
@@ -73,7 +74,7 @@ export default async function HomePage() {
       {/* HERO plein écran avec overlay sombre */}
       <section className="relative h-[620px] sm:h-[820px] overflow-hidden">
         <Image
-          src="/hero-banner.webp" // remplace par l'image du body du site si besoin
+          src="/hero-banner.webp"
           alt="Hero"
           fill
           priority
@@ -81,9 +82,15 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/40 to-black/70" />
 
-        {/* Bloc Catégories style mockup */}
+        {/* Bloc Catégories + Recherche */}
         {categories.length > 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 z-10">
+
+            {/* Barre de recherche transparente */}
+            <div className="w-full max-w-xl mb-8">
+              <SearchBar />
+            </div>
+
             <div className="text-center mb-6">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white uppercase tracking-tight">
                 Catégories
@@ -123,32 +130,6 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Nouveautés */}
-      {newProducts.length > 0 && (
-        <section className="py-16 bg-light-gray">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h3 className="text-3xl font-bold text-dark mb-2 font-display">Nouveautés</h3>
-                <p className="text-gray-600">Découvrez nos derniers produits</p>
-              </div>
-              <Link
-                href="/produits?nouveautes=true"
-                className="text-primary hover:text-primary-dark font-semibold inline-flex items-center gap-2"
-              >
-                Voir tout
-                <span className="text-lg">›</span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {newProducts.map((product: Product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Promotions */}
       {saleProducts.length > 0 && (
         <section className="py-16 bg-white">
@@ -171,6 +152,32 @@ export default async function HomePage() {
                 <div key={product.id} className="min-w-[240px] max-w-[260px] snap-start flex-shrink-0">
                   <ProductCard product={product} />
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Nouveautés */}
+      {newProducts.length > 0 && (
+        <section className="py-16 bg-light-gray">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-3xl font-bold text-dark mb-2 font-display">Nouveautés</h3>
+                <p className="text-gray-600">Découvrez nos derniers produits</p>
+              </div>
+              <Link
+                href="/produits?nouveautes=true"
+                className="text-primary hover:text-primary-dark font-semibold inline-flex items-center gap-2"
+              >
+                Voir tout
+                <span className="text-lg">›</span>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {newProducts.map((product: Product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>

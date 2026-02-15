@@ -56,6 +56,7 @@ export async function PUT(
       isFeatured,
       isOnSale,
       isPack,
+      displayOrder,
     } = body;
 
     const existingProduct = await prisma.product.findUnique({
@@ -99,6 +100,7 @@ export async function PUT(
         isFeatured: isFeatured !== undefined ? !!isFeatured : existingProduct.isFeatured,
         isOnSale: isOnSale !== undefined ? !!isOnSale : existingProduct.isOnSale,
         isPack: isPack !== undefined ? !!isPack : existingProduct.isPack,
+        displayOrder: displayOrder !== undefined ? parseInt(displayOrder) : existingProduct.displayOrder,
       },
       include: {
         category: true,

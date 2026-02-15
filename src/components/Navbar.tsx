@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Search, Menu, X, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, ChevronDown, Home, Tag, Package } from 'lucide-react';
 import Cart from './Cart';
 
 interface Category {
@@ -95,7 +95,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Search */}
+              {/* Search Desktop */}
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
@@ -127,7 +127,7 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile: panier + menu */}
             <div className="md:hidden flex items-center space-x-4">
               <button
                 onClick={() => setIsCartOpen(true)}
@@ -150,42 +150,93 @@ export default function Navbar() {
               </button>
             </div>
           </div>
-
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="md:hidden pb-4 space-y-3">
-              <form onSubmit={handleSearch} className="relative">
-                <input
-                  type="text"
-                  placeholder="Rechercher un produit..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full"
-                >
-                  <Search className="w-4 h-4" />
-                </button>
-              </form>
-
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <Link
-                    key={category.id}
-                    href={`/produits?categorie=${category.slug}`}
-                    className="px-3 py-2 bg-gray-100 text-sm rounded-lg text-dark hover:bg-gray-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {category.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </nav>
+
+      {/* Overlay sombre quand menu ouvert */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-[60] md:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+
+      {/* Panneau slide depuis la droite */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[65%] max-w-[280px] bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden ${
+          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <span className="text-lg font-bold text-dark">Menu</span>
+          <button
+            onClick={() => setIsMenuOpen(false)}
+            className="text-gray-400 hover:text-dark transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-1">
+          {/* Accueil */}
+          <Link
+            href="/"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+          >
+            <Home className="w-5 h-5 text-[#f28c28]" />
+            <span className="font-medium">Accueil</span>
+          </Link>
+
+          {/* Séparateur */}
+          <div className="py-2">
+            <div className="h-px bg-gray-100" />
+          </div>
+
+          {/* Titre catégories */}
+          <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Catégories
+          </p>
+
+          {/* Liste catégories */}
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/produits?categorie=${category.slug}`}
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-[#f28c28]">›</span>
+              <span className="font-medium">{category.name}</span>
+            </Link>
+          ))}
+
+          {/* Séparateur */}
+          <div className="py-2">
+            <div className="h-px bg-gray-100" />
+          </div>
+
+          {/* Promotions */}
+          <Link
+            href="/produits?promotions=true"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+          >
+            <Tag className="w-5 h-5 text-red-500" />
+            <span className="font-medium">Promotions</span>
+          </Link>
+
+          {/* Packs */}
+          <Link
+            href="/produits?packs=true"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+          >
+            <Package className="w-5 h-5 text-blue-500" />
+            <span className="font-medium">Packs</span>
+          </Link>
+        </div>
+      </div>
 
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>

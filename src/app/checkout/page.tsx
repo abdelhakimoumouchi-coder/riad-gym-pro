@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -11,11 +11,101 @@ import { Loader2, MapPin, Upload, Trash2 } from 'lucide-react';
 import { Turnstile } from '@marsidev/react-turnstile';
 
 const ALGER_COMMUNES = [
-  'Alger-Centre','Bab El Oued','El Madania','El Mouradia','Hydra','Kouba','Bachdjerrah','Bir Mourad Rais',
-  'Birmandreis','El Biar','Ben Aknoun','Dely Brahim','Cheraga','Draria','El Harrach','Baraki','Bordj El Kiffan',
-  'Dar El Beida','Bab Ezzouar','Baba Hassen','Douera','Khracia','Ouled Chebel','Rahmania','Sidi Moussa',
-  'Tessala El Merdja'
+  '1 - Alger-Centre',
+  '2 - Sidi M\'hamed',
+  '3 - El Madania',
+  '4 - Hamma Anassers',
+  '5 - Bab El Oued',
+  '6 - Bologhine',
+  '7 - Casbah',
+  '8 - Oued Koriche',
+  '9 - Bir Mourad Raïs',
+  '10 - El Biar',
+  '11 - Bouzareah',
+  '12 - Birkhadem',
+  '13 - El Harrach',
+  '14 - Baraki',
+  '15 - Oued Smar',
+  '16 - Bachdjerrah',
+  '17 - Hussein Dey',
+  '18 - Kouba',
+  '19 - Bourouba',
+  '20 - Dar El Beïda',
+  '21 - Bab Ezzouar',
+  '22 - Ben Aknoun',
+  '23 - Dely Ibrahim',
+  '24 - El Mouradia',
+  '25 - Hydra',
+  '26 - Mohammadia',
+  '27 - Bordj El Kiffan',
+  '28 - El Magharia',
+  '29 - Beni Messous',
+  '30 - Les Eucalyptus',
+  '31 - Birtouta',
+  '32 - Tessala El Merdja',
+  '33 - Ouled Chebel',
+  '34 - Sidi Moussa',
+  '35 - Aïn Taya',
+  '36 - Bordj El Bahri',
+  '37 - El Marsa',
+  '38 - H\'raoua',
+  '39 - Rouïba',
+  '40 - Reghaia',
+  '41 - Aïn Benian',
+  '42 - Staoueli',
+  '43 - Zéralda',
+  '44 - Mahelma',
+  '45 - Rahmania',
+  '46 - Souidania',
+  '47 - Cheraga',
+  '48 - Ouled Fayet',
+  '49 - El Achour',
+  '50 - Draria',
+  '51 - Douera',
+  '52 - Baba Hassen',
+  '53 - Khraissia',
+  '54 - Saoula',
+  '55 - Sidi Abdellah',
+  '56 - Hammamet',
+  '57 - Heraoua',
 ];
+
+// Compresser l'image pour éviter les erreurs de body trop gros
+function compressImage(file: File, maxWidth = 1200, quality = 0.7): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressed);
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,6 +114,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const successAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const [receiptImage, setReceiptImage] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
@@ -41,7 +132,20 @@ export default function CheckoutPage() {
       router.push('/panier');
     }
     setCart(cartData);
+
+    successAudioRef.current = new Audio('/sounds/success.mp3');
   }, [router]);
+
+  const playSuccessSound = () => {
+    try {
+      if (successAudioRef.current) {
+        successAudioRef.current.currentTime = 0;
+        successAudioRef.current.play().catch(() => {});
+      }
+    } catch {
+      // Ignorer les erreurs audio
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -100,13 +204,19 @@ export default function CheckoutPage() {
     setError('');
 
     try {
+      // Compresser l'image du reçu avant envoi
       let receiptBase64: string | null = null;
       if (!isAlger && receiptImage) {
-        receiptBase64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(receiptImage);
-        });
+        try {
+          receiptBase64 = await compressImage(receiptImage, 1200, 0.7);
+        } catch {
+          // Fallback: lire sans compression
+          receiptBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(receiptImage);
+          });
+        }
       }
 
       const orderData = {
@@ -138,6 +248,11 @@ export default function CheckoutPage() {
       });
 
       if (!res.ok) {
+        // Gérer le cas où le serveur renvoie du HTML au lieu du JSON
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+          throw new Error('Erreur serveur. Veuillez réessayer.');
+        }
         const data = await res.json();
         throw new Error(data.error || 'Erreur lors de la création de la commande');
       }
@@ -145,9 +260,10 @@ export default function CheckoutPage() {
       localStorage.setItem('cart', '[]');
       window.dispatchEvent(new Event('cartUpdated'));
       setSuccess(true);
+      playSuccessSound();
       setTimeout(() => {
         router.push('/');
-      }, 1500);
+      }, 3000);
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue');
     } finally {
@@ -170,8 +286,9 @@ export default function CheckoutPage() {
           <h1 className="text-4xl font-bold text-dark mb-8 font-display">Finaliser la commande</h1>
 
           {success && (
-            <div className="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded-lg mb-6">
-              ✓ Commande créée avec succès!
+            <div className="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded-lg mb-6 text-center">
+              <p className="text-2xl font-bold mb-2">✅ Commande créée avec succès !</p>
+              <p className="text-sm">{"Vous allez être redirigé vers la page d'accueil..."}</p>
             </div>
           )}
 
@@ -272,21 +389,30 @@ export default function CheckoutPage() {
                 {/* Section upload reçu pour hors Alger */}
                 {!isAlger && formData.wilaya && (
                   <div className="space-y-4">
-                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4" dir="rtl">
                       <div className="flex gap-3">
                         <MapPin className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                        <div className="text-sm text-yellow-800">
-                          <p className="font-semibold mb-1">Confirmation de commande</p>
-                          <p>
-                            Pour confirmer votre commande, veuillez envoyer une photo du reçu du
-                            versement de <strong>1 000 DA</strong> au CCP ou BaridiMob suivant :
+                        <div className="text-sm text-yellow-800 text-right w-full">
+                          <p className="font-semibold mb-3 text-base">
+                            لتأكيد طلبيتك، يرجى إرسال صورة لوصل دفع مبلغ 1000 دج إلى حساب CCP أو BaridiMob التالي:
                           </p>
-                          <ul className="mt-2 space-y-1 list-disc list-inside">
-                            <li><strong>CCP :</strong> 00799999 99 clé 99</li>
-                            <li><strong>BaridiMob :</strong> 00799999 0079999999</li>
-                          </ul>
-                          <p className="mt-2" lang="ar" dir="rtl">
-                            ⚠️ يُرجى دفع عربون 1000 دج عبر CCP أو BaridiMob
+
+                          <div className="bg-white/60 rounded-lg p-3 mb-2">
+                            <p className="font-semibold mb-1">حساب CCP:</p>
+                            <p className="text-lg font-bold tracking-wider" dir="ltr" style={{ textAlign: 'right' }}>
+                              0024463854 المفتاح 08
+                            </p>
+                          </div>
+
+                          <div className="bg-white/60 rounded-lg p-3 mb-3">
+                            <p className="font-semibold mb-1">بريدي موب (BaridiMob):</p>
+                            <p className="text-lg font-bold tracking-wider" dir="ltr" style={{ textAlign: 'right' }}>
+                              00799999002446385408
+                            </p>
+                          </div>
+
+                          <p className="text-red-600 font-bold text-base">
+                            ⚠️ يرجى دفع عربون 1000 دج عبر BaridiMob أو CCP
                           </p>
                         </div>
                       </div>

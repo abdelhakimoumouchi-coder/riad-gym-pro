@@ -37,7 +37,10 @@ export async function GET(request: Request) {
           select: { orderItems: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { displayOrder: 'desc' },
+        { createdAt: 'desc' },
+      ],
       skip,
       take: perPage,
     });
@@ -78,6 +81,7 @@ export async function POST(request: Request) {
       isFeatured,
       isOnSale,
       isPack,
+      displayOrder,
     } = body;
 
     // Validation
@@ -118,6 +122,7 @@ export async function POST(request: Request) {
         isFeatured: !!isFeatured,
         isOnSale: !!isOnSale,
         isPack: !!isPack,
+        displayOrder: displayOrder !== undefined ? parseInt(displayOrder) : 0,
       },
       include: {
         category: true,

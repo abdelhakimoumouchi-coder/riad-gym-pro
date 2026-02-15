@@ -67,7 +67,7 @@ model Category {
 model Product {
   id           String   @id @default(cuid())
   name         String
-  slug         String           // doublons autorisés
+  slug         String
   description  String?
   price        Float
   comparePrice Float?
@@ -78,6 +78,7 @@ model Product {
   isFeatured   Boolean  @default(false)
   isOnSale     Boolean  @default(false)
   isPack       Boolean  @default(false)
+  displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
