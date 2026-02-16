@@ -70,34 +70,63 @@ const ALGER_COMMUNES = [
   '57 - Heraoua',
 ];
 
-// Compresser l'image pour éviter les erreurs de body trop gros
-function compressImage(file: File, maxWidth = 1200, quality = 0.7): Promise<string> {
+// Taille max du base64 en caractères (~750 Ko)
+const MAX_BASE64_SIZE = 750_000;
+
+// Compresser l'image avec réduction progressive si nécessaire
+// FIX Safari: utilise document.createElement('img') au lieu de new Image()
+function compressImage(file: File, maxWidth = 800, quality = 0.6): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
+      const img = document.createElement('img');
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
 
-        if (width > maxWidth) {
-          height = (height * maxWidth) / width;
-          width = maxWidth;
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Canvas context not available'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Compression progressive : si trop gros, on réduit la qualité
+          let compressed = canvas.toDataURL('image/jpeg', quality);
+
+          if (compressed.length > MAX_BASE64_SIZE && quality > 0.3) {
+            compressed = canvas.toDataURL('image/jpeg', 0.4);
+          }
+
+          if (compressed.length > MAX_BASE64_SIZE) {
+            // Dernier recours : réduire encore la taille
+            const smallCanvas = document.createElement('canvas');
+            const smallWidth = Math.min(width, 600);
+            const smallHeight = (height * smallWidth) / width;
+            smallCanvas.width = smallWidth;
+            smallCanvas.height = smallHeight;
+            const smallCtx = smallCanvas.getContext('2d');
+            if (smallCtx) {
+              smallCtx.drawImage(img, 0, 0, smallWidth, smallHeight);
+              compressed = smallCanvas.toDataURL('image/jpeg', 0.4);
+            }
+          }
+
+          resolve(compressed);
+        } catch (err) {
+          reject(err);
         }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Canvas context not available'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        const compressed = canvas.toDataURL('image/jpeg', quality);
-        resolve(compressed);
       };
       img.onerror = () => reject(new Error('Failed to load image'));
       img.src = e.target?.result as string;
@@ -155,6 +184,11 @@ export default function CheckoutPage() {
   const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Vérifier la taille du fichier original (max 15 Mo)
+      if (file.size > 15 * 1024 * 1024) {
+        setError('La photo est trop volumineuse (max 15 Mo). Veuillez en choisir une autre.');
+        return;
+      }
       setReceiptImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -208,7 +242,7 @@ export default function CheckoutPage() {
       let receiptBase64: string | null = null;
       if (!isAlger && receiptImage) {
         try {
-          receiptBase64 = await compressImage(receiptImage, 1200, 0.7);
+          receiptBase64 = await compressImage(receiptImage, 800, 0.6);
         } catch {
           // Fallback: lire sans compression
           receiptBase64 = await new Promise<string>((resolve) => {
