@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -10,10 +10,19 @@ import ProductCard from '@/components/ProductCard';
 import Loading from '@/components/Loading';
 import { Product } from '@/types';
 import { formatPrice, calculateDiscount } from '@/lib/utils';
-import { ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw, Tag } from 'lucide-react';
+import {
+  ShoppingCart,
+  Minus,
+  Plus,
+  Truck,
+  Shield,
+  RotateCcw,
+  Tag,
+} from 'lucide-react';
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params?.slug as string;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -44,15 +53,22 @@ export default function ProductDetailPage() {
 
       if (data.similarProducts) {
         setSimilarProducts(
-          (data.similarProducts || []).filter((p: Product) => p.id !== prod.id)
+          (data.similarProducts || []).filter(
+            (p: Product) => p.id !== prod.id
+          )
         );
       } else if (prod.categoryId) {
-        const simRes = await fetch(`/api/products?categoryId=${prod.categoryId}&limit=4`, {
-          cache: 'no-store',
-        });
+        const simRes = await fetch(
+          `/api/products?categoryId=${prod.categoryId}&limit=4`,
+          { cache: 'no-store' }
+        );
+
         const simData = await simRes.json();
+
         setSimilarProducts(
-          (simData.products || []).filter((p: Product) => p.id !== prod.id)
+          (simData.products || []).filter(
+            (p: Product) => p.id !== prod.id
+          )
         );
       } else {
         setSimilarProducts([]);
@@ -72,11 +88,15 @@ export default function ProductDetailPage() {
 
   const addToCart = () => {
     if (!product) return;
+    if ((product.stock ?? 0) <= 0) return;
 
     setAddingToCart(true);
 
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItem = cart.find((item: any) => item.id === product.id);
+
+    const existingItem = cart.find(
+      (item: any) => item.id === product.id
+    );
 
     const safeImage =
       product.thumbnail ||
@@ -84,8 +104,13 @@ export default function ProductDetailPage() {
         ? product.images[0]
         : '/placeholder.png');
 
+    const maxStock = product.stock ?? 0;
+
     if (existingItem) {
-      existingItem.quantity += quantity;
+      existingItem.quantity = Math.min(
+        maxStock,
+        existingItem.quantity + quantity
+      );
     } else {
       cart.push({
         id: product.id,
@@ -93,21 +118,27 @@ export default function ProductDetailPage() {
         slug: product.slug,
         price: product.price,
         image: safeImage,
-        quantity,
+        quantity: Math.min(quantity, maxStock),
       });
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
 
-    setTimeout(() => setAddingToCart(false), 1000);
+    setTimeout(() => {
+      setAddingToCart(false);
+    }, 900);
   };
 
   const buyNow = () => {
+    if (!product) return;
+    if ((product.stock ?? 0) <= 0) return;
+
     addToCart();
+
     setTimeout(() => {
-      window.location.href = '/panier';
-    }, 500);
+      router.push('/panier');
+    }, 350);
   };
 
   if (loading) {
@@ -126,10 +157,16 @@ export default function ProductDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-light-gray flex items-center justify-center">
+        <div className="min-h-screen bg-light-gray flex items-center justify-center px-4">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-dark mb-4">Produit introuvable</h1>
-            <Link href="/produits" className="text-primary hover:text-primary-dark">
+            <h1 className="text-3xl font-bold text-dark mb-4">
+              Produit introuvable
+            </h1>
+
+            <Link
+              href="/produits"
+              className="text-primary hover:text-primary-dark"
+            >
               Retour aux produits
             </Link>
           </div>
@@ -144,8 +181,13 @@ export default function ProductDetailPage() {
       ? calculateDiscount(product.comparePrice, product.price)
       : 0;
 
-  const imagesArr = Array.isArray(product.images) ? product.images : [];
-  const images = imagesArr.length > 0 ? imagesArr : ['/placeholder.png'];
+  const imagesArr = Array.isArray(product.images)
+    ? product.images
+    : [];
+
+  const images =
+    imagesArr.length > 0 ? imagesArr : ['/placeholder.png'];
+
   const inStock = (product.stock ?? 0) > 0;
 
   return (
@@ -156,44 +198,61 @@ export default function ProductDetailPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-6 flex-wrap">
-            <Link href="/" className="hover:text-primary">Accueil</Link>
+            <Link href="/" className="hover:text-primary">
+              Accueil
+            </Link>
+
             <span>/</span>
-            <Link href="/produits" className="hover:text-primary">Produits</Link>
+
+            <Link href="/produits" className="hover:text-primary">
+              Produits
+            </Link>
+
             <span>/</span>
+
             <Link
               href={`/produits?categorie=${product.category.slug}`}
               className="hover:text-primary"
             >
               {product.category.name}
             </Link>
+
             <span>/</span>
+
             <span className="text-dark">{product.name}</span>
           </div>
 
           {/* Product Details */}
-          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-12">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
-              {/* Images Gallery */}
+              {/* Images */}
               <div>
-                <div className="relative aspect-square bg-light-gray rounded-lg overflow-hidden mb-4">
+                <div className="relative aspect-square bg-light-gray rounded-xl overflow-hidden mb-4">
                   <Image
                     src={images[selectedImage]}
                     alt={product.name}
                     fill
                     priority
-                    className="object-cover"
+                    quality={85}
                     sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                   />
 
                   {product.isOnSale && discount > 0 && (
-                    <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full font-semibold">
+                    <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow">
                       -{discount}%
                     </div>
                   )}
 
                   {product.isNew && (
-                    <div className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-full font-semibold">
+                    <div className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-full font-semibold shadow">
                       NOUVEAU
+                    </div>
+                  )}
+
+                  {!inStock && (
+                    <div className="absolute bottom-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow">
+                      Rupture
                     </div>
                   )}
                 </div>
@@ -205,8 +264,10 @@ export default function ProductDetailPage() {
                         key={idx}
                         type="button"
                         onClick={() => setSelectedImage(idx)}
-                        className={`relative aspect-square bg-light-gray rounded-lg overflow-hidden border-2 transition-colors ${
-                          selectedImage === idx ? 'border-primary' : 'border-transparent'
+                        className={`relative aspect-square bg-light-gray rounded-lg overflow-hidden border-2 transition-all ${
+                          selectedImage === idx
+                            ? 'border-primary'
+                            : 'border-transparent hover:border-gray-300'
                         }`}
                       >
                         <Image
@@ -222,7 +283,7 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              {/* Product Info */}
+              {/* Info */}
               <div>
                 <Link
                   href={`/produits?categorie=${product.category.slug}`}
@@ -236,7 +297,9 @@ export default function ProductDetailPage() {
                 </h1>
 
                 {product.shortDesc && (
-                  <p className="text-gray-600 mb-6">{product.shortDesc}</p>
+                  <p className="text-gray-600 mb-6">
+                    {product.shortDesc}
+                  </p>
                 )}
 
                 {/* Price */}
@@ -252,31 +315,38 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Stock Status */}
+                {/* Stock */}
                 <div className="mb-6">
                   {inStock ? (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
-                      <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-green-600 rounded-full" />
                       <span className="font-medium">En stock</span>
                     </div>
                   ) : (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-lg">
-                      <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                      <span className="font-medium">Rupture de stock</span>
+                      <div className="w-2 h-2 bg-red-600 rounded-full" />
+                      <span className="font-medium">
+                        Rupture de stock
+                      </span>
                     </div>
                   )}
                 </div>
 
-                {/* Quantity Selector */}
+                {/* Quantity */}
                 {inStock && (
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-dark mb-2">
                       Quantité
                     </label>
+
                     <div className="flex items-center gap-4">
                       <button
                         type="button"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        onClick={() =>
+                          setQuantity(
+                            Math.max(1, quantity - 1)
+                          )
+                        }
                         className="w-10 h-10 bg-light-gray hover:bg-gray-300 rounded-lg flex items-center justify-center transition-colors"
                       >
                         <Minus className="w-5 h-5" />
@@ -288,7 +358,14 @@ export default function ProductDetailPage() {
 
                       <button
                         type="button"
-                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                        onClick={() =>
+                          setQuantity(
+                            Math.min(
+                              product.stock,
+                              quantity + 1
+                            )
+                          )
+                        }
                         className="w-10 h-10 bg-light-gray hover:bg-gray-300 rounded-lg flex items-center justify-center transition-colors"
                       >
                         <Plus className="w-5 h-5" />
@@ -298,59 +375,79 @@ export default function ProductDetailPage() {
                 )}
 
                 {/* Buttons */}
-                {inStock && (
-                  <div className="flex gap-4 mb-8">
-                    <button
-                      type="button"
-                      onClick={addToCart}
-                      disabled={addingToCart}
-                      className="flex-1 bg-primary hover:bg-primary-dark text-white py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      {addingToCart ? 'Ajouté!' : 'Ajouter au panier'}
-                    </button>
+                <div className="flex gap-4 mb-8 flex-col sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={addToCart}
+                    disabled={!inStock || addingToCart}
+                    className="flex-1 bg-primary hover:bg-primary-dark text-white py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
 
-                    <button
-                      type="button"
-                      onClick={buyNow}
-                      className="flex-1 bg-dark hover:bg-dark-light text-white py-4 px-6 rounded-lg font-semibold transition-colors"
-                    >
-                      Acheter maintenant
-                    </button>
-                  </div>
-                )}
+                    {!inStock
+                      ? 'Rupture de stock'
+                      : addingToCart
+                      ? 'Ajouté !'
+                      : 'Ajouter au panier'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={buyNow}
+                    disabled={!inStock}
+                    className="flex-1 bg-dark hover:bg-dark-light text-white py-4 px-6 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Acheter maintenant
+                  </button>
+                </div>
 
                 {/* Features */}
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t">
                   <div className="flex items-start gap-3">
                     <Truck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-medium text-dark">Livraison rapide</div>
-                      <div className="text-sm text-gray-600">58 wilayas</div>
+                      <div className="font-medium text-dark">
+                        Livraison rapide
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        58 wilayas
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-medium text-dark">Qualité garantie</div>
-                      <div className="text-sm text-gray-600">Produits authentiques</div>
+                      <div className="font-medium text-dark">
+                        Qualité garantie
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Produits authentiques
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <RotateCcw className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-medium text-dark">Retour facile</div>
-                      <div className="text-sm text-gray-600">14 jours</div>
+                      <div className="font-medium text-dark">
+                        Retour facile
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        14 jours
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <Tag className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-medium text-dark">Meilleur prix</div>
-                      <div className="text-sm text-gray-600">Prix compétitifs</div>
+                      <div className="font-medium text-dark">
+                        Meilleur prix
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Prix compétitifs
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -363,26 +460,34 @@ export default function ProductDetailPage() {
                 <h2 className="text-2xl font-bold text-dark mb-4 font-display">
                   Description
                 </h2>
+
                 <div className="prose max-w-none text-gray-700">
-                  {product.description.split('\n').map((paragraph, idx) => (
-                    <p key={idx} className="mb-4">
-                      {paragraph}
-                    </p>
-                  ))}
+                  {product.description
+                    .split('\n')
+                    .filter(Boolean)
+                    .map((paragraph, idx) => (
+                      <p key={idx} className="mb-4">
+                        {paragraph}
+                      </p>
+                    ))}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Similar Products */}
+          {/* Similar */}
           {similarProducts.length > 0 && (
             <div>
               <h2 className="text-3xl font-bold text-dark mb-6 font-display">
                 Produits Similaires
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 content-start">
                 {similarProducts.map((prod) => (
-                  <ProductCard key={prod.id} product={prod} />
+                  <ProductCard
+                    key={prod.id}
+                    product={prod}
+                  />
                 ))}
               </div>
             </div>

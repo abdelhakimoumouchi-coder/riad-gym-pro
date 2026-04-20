@@ -12,6 +12,7 @@ import { Filter, Search, X } from 'lucide-react';
 function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,11 +26,22 @@ function ProductsContent() {
   const [isOnSale, setIsOnSale] = useState(false);
   const [isPack, setIsPack] = useState(false);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filtersReady, setFiltersReady] = useState(false);
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Helper to sync category with URL
   const setCategory = (slug: string) => {
     setSelectedCategory(slug);
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (slug) {
@@ -41,83 +53,126 @@ function ProductsContent() {
     }
 
     params.delete('page');
+
     router.push(`/produits?${params.toString()}`, { scroll: false });
+
+    if (showFilters) {
+      setShowFilters(false);
+    }
   };
 
   useEffect(() => {
-    const categoryParam = searchParams.get('category') || searchParams.get('categorie');
+    const categoryParam =
+      searchParams.get('category') || searchParams.get('categorie');
     const newParam = searchParams.get('nouveautes');
     const saleParam = searchParams.get('promotions');
     const packParam = searchParams.get('packs');
     const searchParam = searchParams.get('search');
 
-    if (categoryParam) setSelectedCategory(categoryParam);
-    if (newParam === 'true') setIsNew(true);
-    if (saleParam === 'true') setIsOnSale(true);
-    if (packParam === 'true') setIsPack(true);
-    if (searchParam) setSearch(searchParam);
+    setSelectedCategory(categoryParam || '');
+    setIsNew(newParam === 'true');
+    setIsOnSale(saleParam === 'true');
+    setIsPack(packParam === 'true');
+    setSearch(searchParam || '');
 
     fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data.categories || []))
+      .then((res) => res.json())
+      .then((data) => setCategories(data.categories || []))
       .catch(console.error)
       .finally(() => setFiltersReady(true));
   }, [searchParams]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, isNew, isOnSale, isPack, search]);
+  }, [selectedCategory, isNew, isOnSale, isPack, debouncedSearch]);
 
   useEffect(() => {
     if (!filtersReady) return;
+
+    const controller = new AbortController();
+
+    const fetchProducts = async () => {
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams();
+
+        if (selectedCategory) params.append('category', selectedCategory);
+        if (isNew) params.append('isNew', 'true');
+        if (isOnSale) params.append('isOnSale', 'true');
+        if (isPack) params.append('isPack', 'true');
+        if (debouncedSearch) params.append('search', debouncedSearch);
+
+        params.append('page', currentPage.toString());
+        params.append('limit', '12');
+
+        const res = await fetch(`/api/products?${params.toString()}`, {
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+
+        const data = await res.json();
+
+        setProducts(data.products || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+      } catch (error: any) {
+        if (error?.name !== 'AbortError') {
+          console.error('Error fetching products:', error);
+          setProducts([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, isNew, isOnSale, isPack, search, currentPage, filtersReady]);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (selectedCategory) params.append('category', selectedCategory);
-      if (isNew) params.append('isNew', 'true');
-      if (isOnSale) params.append('isOnSale', 'true');
-      if (isPack) params.append('isPack', 'true');
-      if (search) params.append('search', search);
-      params.append('page', currentPage.toString());
-      params.append('limit', '12');
-
-      const res = await fetch(`/api/products?${params.toString()}`);
-      const data = await res.json();
-
-      setProducts(data.products || []);
-      setTotalPages(data.pagination?.totalPages || 1);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => controller.abort();
+  }, [
+    selectedCategory,
+    isNew,
+    isOnSale,
+    isPack,
+    debouncedSearch,
+    currentPage,
+    filtersReady,
+  ]);
 
   const clearFilters = () => {
-    setCategory('');
+    setSelectedCategory('');
     setIsNew(false);
     setIsOnSale(false);
     setIsPack(false);
     setSearch('');
+    setDebouncedSearch('');
     setCurrentPage(1);
+    router.push('/produits', { scroll: false });
+
+    if (showFilters) {
+      setShowFilters(false);
+    }
   };
 
-  const hasActiveFilters = selectedCategory || isNew || isOnSale || isPack || search;
+  const changePage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const hasActiveFilters =
+    selectedCategory || isNew || isOnSale || isPack || search;
 
   return (
     <>
       <Navbar />
+
       <div className="min-h-screen bg-light-gray">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-4xl font-bold text-dark mb-2 font-display">Nos Produits</h1>
+            <h1 className="text-4xl font-bold text-dark mb-2 font-display">
+              Nos Produits
+            </h1>
+
             <p className="text-gray-600">
               Découvrez notre large gamme de compléments alimentaires sportifs
             </p>
@@ -127,6 +182,7 @@ function ProductsContent() {
           <div className="mb-8">
             <div className="relative max-w-xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+
               <input
                 type="text"
                 value={search}
@@ -134,6 +190,7 @@ function ProductsContent() {
                 placeholder="Rechercher un produit..."
                 className="w-full pl-12 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm shadow-sm"
               />
+
               {search && (
                 <button
                   type="button"
@@ -159,6 +216,7 @@ function ProductsContent() {
                     <Filter className="w-5 h-5" />
                     Filtres
                   </h2>
+
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
@@ -172,6 +230,7 @@ function ProductsContent() {
                 {/* Categories */}
                 <div className="mb-6">
                   <h3 className="font-semibold text-dark mb-3">Catégories</h3>
+
                   <div className="space-y-2">
                     <label className="flex items-center cursor-pointer">
                       <input
@@ -180,10 +239,16 @@ function ProductsContent() {
                         onChange={() => setCategory('')}
                         className="mr-2 text-primary focus:ring-primary"
                       />
-                      <span className="text-gray-700">Toutes les catégories</span>
+                      <span className="text-gray-700">
+                        Toutes les catégories
+                      </span>
                     </label>
+
                     {categories.map((category) => (
-                      <label key={category.id} className="flex items-center cursor-pointer">
+                      <label
+                        key={category.id}
+                        className="flex items-center cursor-pointer"
+                      >
                         <input
                           type="radio"
                           checked={selectedCategory === category.slug}
@@ -207,6 +272,7 @@ function ProductsContent() {
                     />
                     <span className="text-gray-700">Nouveautés</span>
                   </label>
+
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -216,6 +282,7 @@ function ProductsContent() {
                     />
                     <span className="text-gray-700">Promotions</span>
                   </label>
+
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -238,6 +305,7 @@ function ProductsContent() {
               >
                 <Filter className="w-5 h-5" />
                 Filtres
+
                 {hasActiveFilters && (
                   <span className="bg-primary text-white px-2 py-1 rounded-full text-xs">
                     Actifs
@@ -251,7 +319,7 @@ function ProductsContent() {
                 </div>
               ) : products.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 content-start">
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -259,19 +327,25 @@ function ProductsContent() {
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-2 flex-wrap">
                       <button
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        onClick={() =>
+                          changePage(Math.max(1, currentPage - 1))
+                        }
                         disabled={currentPage === 1}
                         className="px-4 py-2 bg-white rounded-lg shadow-md hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Précédent
                       </button>
-                      <div className="flex gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+
+                      <div className="flex gap-2 flex-wrap">
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1
+                        ).map((page) => (
                           <button
                             key={page}
-                            onClick={() => setCurrentPage(page)}
+                            onClick={() => changePage(page)}
                             className={`px-4 py-2 rounded-lg shadow-md transition-colors ${
                               currentPage === page
                                 ? 'bg-primary text-white'
@@ -282,8 +356,11 @@ function ProductsContent() {
                           </button>
                         ))}
                       </div>
+
                       <button
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        onClick={() =>
+                          changePage(Math.min(totalPages, currentPage + 1))
+                        }
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 bg-white rounded-lg shadow-md hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -297,10 +374,15 @@ function ProductsContent() {
                   <div className="text-gray-400 mb-4">
                     <Filter className="w-16 h-16 mx-auto" />
                   </div>
-                  <h3 className="text-xl font-semibold text-dark mb-2">Aucun produit trouvé</h3>
+
+                  <h3 className="text-xl font-semibold text-dark mb-2">
+                    Aucun produit trouvé
+                  </h3>
+
                   <p className="text-gray-600 mb-4">
                     Essayez de modifier vos filtres ou votre recherche
                   </p>
+
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}

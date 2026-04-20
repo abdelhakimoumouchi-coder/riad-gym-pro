@@ -147,7 +147,9 @@ export default async function HomePage() {
           alt="Hero"
           fill
           priority
-          className="object-cover"
+          fetchPriority="high"
+          quality={82}
+          className="object-cover will-change-transform"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/40 to-black/70" />
@@ -166,7 +168,7 @@ export default async function HomePage() {
               <div className="mx-auto mt-2 h-[3px] w-24 rounded-full bg-[#f28c28]" />
             </div>
 
-            <div className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory px-1 [-webkit-overflow-scrolling:touch] scrollbar-thin scrollbar-thumb-gray-400/50 scrollbar-track-transparent w-full">
+            <div className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth px-1 [-webkit-overflow-scrolling:touch] scrollbar-thin scrollbar-thumb-gray-400/50 scrollbar-track-transparent w-full">
               <div className="flex gap-4 sm:gap-6 w-full overflow-x-auto whitespace-nowrap pr-6">
                 {categories.map((cat: Category) => (
                   <Link
@@ -179,7 +181,7 @@ export default async function HomePage() {
                       alt={cat.name}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 75vw, 240px"
+                      sizes="(max-width: 640px) 70vw, (max-width: 768px) 50vw, 240px"
                       unoptimized={getSafeCategoryImage(cat).startsWith('data:image/')}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/25 to-black/70" />
@@ -217,7 +219,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth [-webkit-overflow-scrolling:touch] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
               {saleProducts.map((product: Product) => (
                 <div key={product.id} className="min-w-[240px] max-w-[260px] snap-start flex-shrink-0">
                   <ProductCard product={product} />
@@ -246,7 +248,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 content-start">
               {newProducts.map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -273,7 +275,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 content-start">
               {featuredProducts.map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
