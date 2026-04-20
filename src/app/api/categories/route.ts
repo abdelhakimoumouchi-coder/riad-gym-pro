@@ -5,16 +5,28 @@ export async function GET() {
   try {
     const categories = await prisma.category.findMany({
       orderBy: { order: 'asc' },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        image: true,
         _count: {
           select: {
-            products: true, // plus de filtre publishedAt
+            products: true,
           },
         },
       },
     });
 
-    return NextResponse.json({ categories });
+    const cleanedCategories = categories.map((category) => ({
+      ...category,
+      image:
+        category.image && category.image.length > 1000
+          ? null
+          : category.image,
+    }));
+
+    return NextResponse.json({ categories: cleanedCategories });
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json(

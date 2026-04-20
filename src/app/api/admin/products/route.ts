@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin-auth';
 import { generateSlug } from '@/lib/utils';
+import { compressImageToBase64 } from '@/lib/image-compression';
 
 export async function GET(request: Request) {
   const adminCheck = await requireAdmin();
@@ -17,9 +18,7 @@ export async function GET(request: Request) {
     const where: any = {};
 
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-      ];
+      where.OR = [{ name: { contains: search, mode: 'insensitive' } }];
     }
 
     if (category) {
@@ -37,10 +36,7 @@ export async function GET(request: Request) {
           select: { orderItems: true },
         },
       },
-      orderBy: [
-        { displayOrder: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ displayOrder: 'desc' }, { createdAt: 'desc' }],
       skip,
       take: perPage,
     });
@@ -107,6 +103,37 @@ export async function POST(request: Request) {
       );
     }
 
+    // Compression images si base64
+    let finalImages = images || [];
+
+    if (Array.isArray(images)) {
+      finalImages = await Promise.all(
+        images.map(async (img) => {
+          if (typeof img === 'string' && img.startsWith('data:image/')) {
+            try {
+              const matches = img.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+
+              if (matches) {
+                const mimeType = matches[1];
+                const base64Data = matches[2];
+                const buffer = Buffer.from(base64Data, 'base64');
+
+                return await compressImageToBase64(buffer, mimeType);
+              }
+            } catch (compressionError) {
+              console.error(
+                'Product image compression failed, saving original image:',
+                compressionError
+              );
+              return img;
+            }
+          }
+
+          return img;
+        })
+      );
+    }
+
     // Create product
     const product = await prisma.product.create({
       data: {
@@ -116,7 +143,7 @@ export async function POST(request: Request) {
         price: parseFloat(price),
         comparePrice: comparePrice ? parseFloat(comparePrice) : null,
         stock: parseInt(stock) || 0,
-        images: images || [],
+        images: finalImages,
         categoryId,
         isNew: !!isNew,
         isFeatured: !!isFeatured,

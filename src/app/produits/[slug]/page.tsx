@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,8 +14,8 @@ import { ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw, Tag } from 'lucide
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const slug = params.slug as string;
-  
+  const slug = params?.slug as string;
+
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,38 +23,58 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
 
-  useEffect(() => {
-    fetchProduct();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  const fetchProduct = useCallback(async () => {
+    if (!slug) return;
 
-  const fetchProduct = async () => {
     setLoading(true);
+
     try {
-      const res = await fetch(`/api/products/${slug}`);
+      const res = await fetch(`/api/products/${slug}`, {
+        cache: 'no-store',
+      });
+
       if (!res.ok) throw new Error('Product not found');
+
       const data = await res.json();
-      const prod = data.product ?? data; // accepte { product, similarProducts } ou produit direct
+      const prod = data.product ?? data;
+
       setProduct(prod);
+      setSelectedImage(0);
+      setQuantity(1);
 
       if (data.similarProducts) {
-        setSimilarProducts((data.similarProducts || []).filter((p: Product) => p.id !== prod.id));
+        setSimilarProducts(
+          (data.similarProducts || []).filter((p: Product) => p.id !== prod.id)
+        );
       } else if (prod.categoryId) {
-        const simRes = await fetch(`/api/products?categoryId=${prod.categoryId}&limit=4`);
+        const simRes = await fetch(`/api/products?categoryId=${prod.categoryId}&limit=4`, {
+          cache: 'no-store',
+        });
         const simData = await simRes.json();
-        setSimilarProducts((simData.products || []).filter((p: Product) => p.id !== prod.id));
+        setSimilarProducts(
+          (simData.products || []).filter((p: Product) => p.id !== prod.id)
+        );
+      } else {
+        setSimilarProducts([]);
       }
     } catch (error) {
       console.error('Error fetching product:', error);
+      setProduct(null);
+      setSimilarProducts([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
 
   const addToCart = () => {
     if (!product) return;
-    
+
     setAddingToCart(true);
+
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cart.find((item: any) => item.id === product.id);
 
@@ -119,9 +139,10 @@ export default function ProductDetailPage() {
     );
   }
 
-  const discount = product.comparePrice && product.isOnSale
-    ? calculateDiscount(product.comparePrice, product.price)
-    : 0;
+  const discount =
+    product.comparePrice && product.isOnSale
+      ? calculateDiscount(product.comparePrice, product.price)
+      : 0;
 
   const imagesArr = Array.isArray(product.images) ? product.images : [];
   const images = imagesArr.length > 0 ? imagesArr : ['/placeholder.png'];
@@ -130,16 +151,19 @@ export default function ProductDetailPage() {
   return (
     <>
       <Navbar />
-      
+
       <div className="min-h-screen bg-light-gray py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-6 flex-wrap">
             <Link href="/" className="hover:text-primary">Accueil</Link>
             <span>/</span>
             <Link href="/produits" className="hover:text-primary">Produits</Link>
             <span>/</span>
-            <Link href={`/produits?categorie=${product.category.slug}`} className="hover:text-primary">
+            <Link
+              href={`/produits?categorie=${product.category.slug}`}
+              className="hover:text-primary"
+            >
               {product.category.name}
             </Link>
             <span>/</span>
@@ -156,32 +180,42 @@ export default function ProductDetailPage() {
                     src={images[selectedImage]}
                     alt={product.name}
                     fill
-                    className="object-cover"
                     priority
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
+
                   {product.isOnSale && discount > 0 && (
                     <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full font-semibold">
                       -{discount}%
                     </div>
                   )}
+
                   {product.isNew && (
                     <div className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-full font-semibold">
                       NOUVEAU
                     </div>
                   )}
                 </div>
-                
+
                 {images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
                     {images.map((img, idx) => (
                       <button
                         key={idx}
+                        type="button"
                         onClick={() => setSelectedImage(idx)}
                         className={`relative aspect-square bg-light-gray rounded-lg overflow-hidden border-2 transition-colors ${
                           selectedImage === idx ? 'border-primary' : 'border-transparent'
                         }`}
                       >
-                        <Image src={img} alt={`${product.name} ${idx + 1}`} fill className="object-cover" />
+                        <Image
+                          src={img}
+                          alt={`${product.name} ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="25vw"
+                        />
                       </button>
                     ))}
                   </div>
@@ -196,18 +230,21 @@ export default function ProductDetailPage() {
                 >
                   {product.category.name}
                 </Link>
-                
-                <h1 className="text-3xl font-bold text-dark mb-4 font-display">{product.name}</h1>
+
+                <h1 className="text-3xl font-bold text-dark mb-4 font-display">
+                  {product.name}
+                </h1>
 
                 {product.shortDesc && (
                   <p className="text-gray-600 mb-6">{product.shortDesc}</p>
                 )}
 
                 {/* Price */}
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-4 mb-6 flex-wrap">
                   <span className="text-4xl font-bold text-primary">
                     {formatPrice(product.price)}
                   </span>
+
                   {product.comparePrice && product.isOnSale && (
                     <span className="text-xl text-gray-500 line-through">
                       {formatPrice(product.comparePrice)}
@@ -215,7 +252,7 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Stock Status (sans le nombre) */}
+                {/* Stock Status */}
                 <div className="mb-6">
                   {inStock ? (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
@@ -233,16 +270,24 @@ export default function ProductDetailPage() {
                 {/* Quantity Selector */}
                 {inStock && (
                   <div className="mb-6">
-                    <label className="block text-sm font-medium text-dark mb-2">Quantité</label>
+                    <label className="block text-sm font-medium text-dark mb-2">
+                      Quantité
+                    </label>
                     <div className="flex items-center gap-4">
                       <button
+                        type="button"
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         className="w-10 h-10 bg-light-gray hover:bg-gray-300 rounded-lg flex items-center justify-center transition-colors"
                       >
                         <Minus className="w-5 h-5" />
                       </button>
-                      <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
+
+                      <span className="text-xl font-semibold w-12 text-center">
+                        {quantity}
+                      </span>
+
                       <button
+                        type="button"
                         onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                         className="w-10 h-10 bg-light-gray hover:bg-gray-300 rounded-lg flex items-center justify-center transition-colors"
                       >
@@ -256,6 +301,7 @@ export default function ProductDetailPage() {
                 {inStock && (
                   <div className="flex gap-4 mb-8">
                     <button
+                      type="button"
                       onClick={addToCart}
                       disabled={addingToCart}
                       className="flex-1 bg-primary hover:bg-primary-dark text-white py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
@@ -263,7 +309,9 @@ export default function ProductDetailPage() {
                       <ShoppingCart className="w-5 h-5" />
                       {addingToCart ? 'Ajouté!' : 'Ajouter au panier'}
                     </button>
+
                     <button
+                      type="button"
                       onClick={buyNow}
                       className="flex-1 bg-dark hover:bg-dark-light text-white py-4 px-6 rounded-lg font-semibold transition-colors"
                     >
@@ -281,6 +329,7 @@ export default function ProductDetailPage() {
                       <div className="text-sm text-gray-600">58 wilayas</div>
                     </div>
                   </div>
+
                   <div className="flex items-start gap-3">
                     <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
@@ -288,6 +337,7 @@ export default function ProductDetailPage() {
                       <div className="text-sm text-gray-600">Produits authentiques</div>
                     </div>
                   </div>
+
                   <div className="flex items-start gap-3">
                     <RotateCcw className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
@@ -295,6 +345,7 @@ export default function ProductDetailPage() {
                       <div className="text-sm text-gray-600">14 jours</div>
                     </div>
                   </div>
+
                   <div className="flex items-start gap-3">
                     <Tag className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
@@ -309,10 +360,14 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <div className="border-t p-6 lg:p-8">
-                <h2 className="text-2xl font-bold text-dark mb-4 font-display">Description</h2>
+                <h2 className="text-2xl font-bold text-dark mb-4 font-display">
+                  Description
+                </h2>
                 <div className="prose max-w-none text-gray-700">
                   {product.description.split('\n').map((paragraph, idx) => (
-                    <p key={idx} className="mb-4">{paragraph}</p>
+                    <p key={idx} className="mb-4">
+                      {paragraph}
+                    </p>
                   ))}
                 </div>
               </div>
@@ -322,7 +377,9 @@ export default function ProductDetailPage() {
           {/* Similar Products */}
           {similarProducts.length > 0 && (
             <div>
-              <h2 className="text-3xl font-bold text-dark mb-6 font-display">Produits Similaires</h2>
+              <h2 className="text-3xl font-bold text-dark mb-6 font-display">
+                Produits Similaires
+              </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {similarProducts.map((prod) => (
                   <ProductCard key={prod.id} product={prod} />

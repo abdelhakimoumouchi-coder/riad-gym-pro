@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin-auth';
 import { generateSlug } from '@/lib/utils';
+import { compressImageToBase64 } from '@/lib/image-compression';
 
 export async function GET() {
   const adminCheck = await requireAdmin();
@@ -58,13 +59,36 @@ export async function POST(request: Request) {
       );
     }
 
+    // Compression image si base64
+    let finalImage = image;
+
+    if (typeof image === 'string' && image.startsWith('data:image/')) {
+      try {
+        const matches = image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+
+        if (matches) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+
+          finalImage = await compressImageToBase64(buffer, mimeType);
+        }
+      } catch (compressionError) {
+        console.error(
+          'Category image compression failed, saving original image:',
+          compressionError
+        );
+        finalImage = image;
+      }
+    }
+
     // Create category
     const category = await prisma.category.create({
       data: {
         name,
         slug,
         description,
-        image,
+        image: finalImage,
         order: order !== undefined ? parseInt(order) : 0,
       },
     });
