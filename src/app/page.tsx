@@ -141,7 +141,7 @@ export default async function HomePage() {
       <Navbar />
 
       {/* HERO plein écran avec overlay sombre */}
-      <section className="relative h-[500px] sm:h-[780px] overflow-hidden">
+      <section className="relative h-[480px] sm:h-[780px] overflow-hidden">
         <Image
           src="/hero-banner.webp"
           alt="Hero"
@@ -149,7 +149,7 @@ export default async function HomePage() {
           priority
           fetchPriority="high"
           quality={82}
-          className="object-cover will-change-transform"
+          className="object-cover object-top will-change-transform"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/40 to-black/70" />
