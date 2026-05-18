@@ -141,7 +141,7 @@ export default async function HomePage() {
       <Navbar />
 
       {/* HERO plein écran avec overlay sombre */}
-      <section className="relative h-[560px] sm:h-[780px] overflow-hidden">
+      <section className="relative h-[500px] sm:h-[780px] overflow-hidden">
         <Image
           src="/hero-banner.webp"
           alt="Hero"
@@ -156,12 +156,12 @@ export default async function HomePage() {
 
         {/* Bloc Catégories + Recherche */}
         {categories.length > 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-4 z-10">
-            <div className="w-full max-w-xl mb-6 sm:mb-8">
+          <div className="absolute inset-0 flex flex-col items-center justify-start pt-20 sm:justify-center sm:pt-0 px-4 z-10">
+            <div className="w-full max-w-xl mb-4 sm:mb-8">
               <SearchBar />
             </div>
 
-            <div className="text-center mb-5 sm:mb-6">
+            <div className="text-center mb-4 sm:mb-6">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-tight">
                 Catégories
               </h2>
@@ -174,7 +174,7 @@ export default async function HomePage() {
                   <Link
                     key={cat.id}
                     href={`/produits?category=${cat.slug}`}
-                    className="group relative snap-start flex-shrink-0 w-[200px] h-[180px] sm:w-[240px] sm:h-[210px] rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-lg shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55)] transition hover:-translate-y-[2px]"
+                    className="group relative snap-start flex-shrink-0 w-[185px] h-[165px] sm:w-[240px] sm:h-[210px] rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-lg shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55)] transition hover:-translate-y-[2px]"
                   >
                     <Image
                       src={getSafeCategoryImage(cat)}
