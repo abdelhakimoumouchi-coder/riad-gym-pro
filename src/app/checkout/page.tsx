@@ -315,27 +315,27 @@ export default function CheckoutPage() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-light-gray py-8">
+      <div className="min-h-screen bg-light-gray pt-24 pb-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-dark mb-8 font-display">Finaliser la commande</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-dark mb-6 sm:mb-8 font-display">Finaliser la commande</h1>
 
           {success && (
-            <div className="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded-lg mb-6 text-center">
-              <p className="text-2xl font-bold mb-2">✅ Commande créée avec succès !</p>
+            <div className="bg-green-100 border border-green-400 text-green-800 px-4 sm:px-6 py-4 rounded-lg mb-6 text-center">
+              <p className="text-xl sm:text-2xl font-bold mb-2">✅ Commande créée avec succès !</p>
               <p className="text-sm">{"Vous allez être redirigé vers la page d'accueil..."}</p>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-800 px-6 py-4 rounded-lg mb-6">
+            <div className="bg-red-100 border border-red-400 text-red-800 px-4 sm:px-6 py-4 rounded-lg mb-6">
               {error}
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Formulaire */}
             <div className="lg:col-span-2">
-              <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+              <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 sm:p-6 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-dark mb-4">Informations de livraison</h2>
 
@@ -423,29 +423,29 @@ export default function CheckoutPage() {
                 {/* Section upload reçu pour hors Alger */}
                 {!isAlger && formData.wilaya && (
                   <div className="space-y-4">
-                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4" dir="rtl">
+                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 sm:p-4" dir="rtl">
                       <div className="flex gap-3">
                         <MapPin className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                         <div className="text-sm text-yellow-800 text-right w-full">
-                          <p className="font-semibold mb-3 text-base">
+                          <p className="font-semibold mb-3 text-sm sm:text-base">
                             لتأكيد طلبيتك، يرجى إرسال صورة لوصل دفع مبلغ 1000 دج إلى حساب CCP أو BaridiMob التالي:
                           </p>
 
                           <div className="bg-white/60 rounded-lg p-3 mb-2">
                             <p className="font-semibold mb-1">حساب CCP:</p>
-                            <p className="text-lg font-bold tracking-wider" dir="ltr" style={{ textAlign: 'right' }}>
+                            <p className="text-base sm:text-lg font-bold tracking-wider break-all" dir="ltr" style={{ textAlign: 'right' }}>
                               0024463854 المفتاح 08
                             </p>
                           </div>
 
                           <div className="bg-white/60 rounded-lg p-3 mb-3">
                             <p className="font-semibold mb-1">بريدي موب (BaridiMob):</p>
-                            <p className="text-lg font-bold tracking-wider" dir="ltr" style={{ textAlign: 'right' }}>
+                            <p className="text-base sm:text-lg font-bold tracking-wider break-all" dir="ltr" style={{ textAlign: 'right' }}>
                               00799999002446385408
                             </p>
                           </div>
 
-                          <p className="text-red-600 font-bold text-base">
+                          <p className="text-red-600 font-bold text-sm sm:text-base">
                             ⚠️ يرجى دفع عربون 1000 دج عبر BaridiMob أو CCP
                           </p>
                         </div>
@@ -462,7 +462,7 @@ export default function CheckoutPage() {
                           <img
                             src={receiptPreview}
                             alt="Reçu de versement"
-                            className="w-64 h-48 object-cover rounded-lg border border-gray-300"
+                            className="w-full max-w-xs sm:w-64 h-48 object-cover rounded-lg border border-gray-300"
                           />
                           <button
                             type="button"
@@ -494,7 +494,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Cloudflare Turnstile CAPTCHA */}
-                <div className="flex justify-center">
+                <div className="flex justify-center overflow-x-auto">
                   <Turnstile
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
                     onSuccess={(token) => setTurnstileToken(token)}
@@ -507,7 +507,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={loading || !turnstileToken}
-                  className="w-full bg-primary hover:bg-primary-dark text-white py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full bg-primary hover:bg-primary-dark text-white py-3.5 sm:py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading && <Loader2 className="w-5 h-5 animate-spin" />}
                   Commander
@@ -517,7 +517,7 @@ export default function CheckoutPage() {
 
             {/* Récap */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+              <div className="bg-white rounded-lg shadow-md p-6 lg:sticky lg:top-24">
                 <h2 className="text-xl font-bold text-dark mb-6">Récapitulatif</h2>
 
                 <div className="space-y-3 mb-6 pb-6 border-b">

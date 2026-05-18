@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ShoppingCart, Search, Menu, X, ChevronDown, Home, Tag, Package } from 'lucide-react';
 import Cart from './Cart';
 
@@ -59,11 +58,11 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
               role="button"
               aria-label="Aller à l'accueil"
             >
-              <div className="text-2xl font-bold text-dark">
+              <div className="text-lg sm:text-2xl font-bold text-dark">
                 RI GYM <span className="text-primary">PRO</span>
               </div>
             </Link>
@@ -128,10 +127,10 @@ export default function Navbar() {
             </div>
 
             {/* Mobile: panier + menu */}
-            <div className="md:hidden flex items-center space-x-4">
+            <div className="md:hidden flex items-center space-x-2">
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative text-dark hover:text-primary transition-colors"
+                className="relative text-dark hover:text-primary transition-colors p-2.5 rounded-lg hover:bg-gray-100"
                 aria-label="Panier"
               >
                 <ShoppingCart className="w-6 h-6" />
@@ -143,7 +142,7 @@ export default function Navbar() {
               </button>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-dark hover:text-primary transition-colors"
+                className="text-dark hover:text-primary transition-colors p-2.5 rounded-lg hover:bg-gray-100"
                 aria-label="Menu"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -163,7 +162,7 @@ export default function Navbar() {
 
       {/* Panneau slide depuis la droite */}
       <div
-        className={`fixed top-0 right-0 h-full w-[65%] max-w-[280px] bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 h-full w-[82%] max-w-[340px] bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden overflow-y-auto ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -177,12 +176,12 @@ export default function Navbar() {
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-1">
+        <div className="px-5 py-4 space-y-1 pb-8">
           {/* Accueil */}
           <Link
             href="/"
             onClick={() => setIsMenuOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-dark hover:bg-gray-50 transition-colors"
           >
             <Home className="w-5 h-5 text-[#f28c28]" />
             <span className="font-medium">Accueil</span>
@@ -204,7 +203,7 @@ export default function Navbar() {
               key={category.id}
               href={`/produits?categorie=${category.slug}`}
               onClick={() => setIsMenuOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-dark hover:bg-gray-50 transition-colors"
             >
               <span className="text-[#f28c28]">›</span>
               <span className="font-medium">{category.name}</span>
@@ -220,7 +219,7 @@ export default function Navbar() {
           <Link
             href="/produits?promotions=true"
             onClick={() => setIsMenuOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-dark hover:bg-gray-50 transition-colors"
           >
             <Tag className="w-5 h-5 text-red-500" />
             <span className="font-medium">Promotions</span>
@@ -230,7 +229,7 @@ export default function Navbar() {
           <Link
             href="/produits?packs=true"
             onClick={() => setIsMenuOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-dark hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-dark hover:bg-gray-50 transition-colors"
           >
             <Package className="w-5 h-5 text-blue-500" />
             <span className="font-medium">Packs</span>

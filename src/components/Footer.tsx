@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Instagram, Phone, MapPin } from 'lucide-react';
-import { VIBER_NUMBER } from '@/lib/constants';
 
 const TikTokIcon = ({ className = '' }: { className?: string }) => (
   <svg
@@ -18,11 +17,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-gradient-to-b from-dark to-dark-light text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* Brand Info */}
           <div>
-            <h3 className="text-2xl font-bold mb-4">
+            <h3 className="text-xl sm:text-2xl font-bold mb-4">
               RI GYM <span className="text-primary">PRO</span>
             </h3>
             <p className="text-gray-400 mb-4">
@@ -109,12 +108,12 @@ export default function Footer() {
           <div />
         </div>
 
-        <div className="mt-12 pt-8 border-t border-dark-lighter">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div className="mt-10 sm:mt-12 pt-7 sm:pt-8 border-t border-dark-lighter">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm text-center md:text-left">
               © {currentYear} Riad Gym Pro. Tous droits réservés.
             </p>
-            <div className="flex items-center space-x-4 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
               <span className="flex items-center">
                 <span className="text-primary mr-2">✓</span>
                 Paiement sécurisé

@@ -180,12 +180,12 @@ export default function CreateProduct() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 md:flex">
       <AdminSidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Nouveau produit</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Nouveau produit</h1>
             <p className="text-gray-600 mt-1">Créez un nouveau produit</p>
           </div>
 
@@ -203,7 +203,7 @@ export default function CreateProduct() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Informations de base */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Informations de base</h2>
 
               <div className="space-y-4">
@@ -257,7 +257,7 @@ export default function CreateProduct() {
             </div>
 
             {/* Tarification & stock */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Tarification & stock</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -321,7 +321,7 @@ export default function CreateProduct() {
             </div>
 
             {/* Images */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Images</h2>
 
               <div className="mb-4">
@@ -363,7 +363,7 @@ export default function CreateProduct() {
             </div>
 
             {/* Options */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Options</h2>
 
               <div className="space-y-3">
@@ -413,11 +413,11 @@ export default function CreateProduct() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
               <button
                 type="button"
                 onClick={() => router.push('/admin/produits')}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+                className="w-full sm:w-auto justify-center inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
               >
                 <X className="w-4 h-4 mr-2" />
                 Annuler
@@ -425,7 +425,7 @@ export default function CreateProduct() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#D4AF37] hover:bg-[#c29c30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37] disabled:opacity-50"
+                className="w-full sm:w-auto justify-center inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#D4AF37] hover:bg-[#c29c30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37] disabled:opacity-50"
               >
                 <Save className="w-4 h-4 mr-2" />
                 {loading ? 'Enregistrement...' : 'Enregistrer'}

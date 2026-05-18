@@ -157,9 +157,9 @@ export default function ProductDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-light-gray flex items-center justify-center px-4">
+        <div className="min-h-screen bg-light-gray flex items-center justify-center px-4 pt-24 pb-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-dark mb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-dark mb-4">
               Produit introuvable
             </h1>
 
@@ -194,10 +194,10 @@ export default function ProductDetailPage() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-light-gray py-8">
+      <div className="min-h-screen bg-light-gray pt-24 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-6 flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600 mb-5 sm:mb-6 flex-wrap">
             <Link href="/" className="hover:text-primary">
               Accueil
             </Link>
@@ -219,12 +219,12 @@ export default function ProductDetailPage() {
 
             <span>/</span>
 
-            <span className="text-dark">{product.name}</span>
+            <span className="text-dark break-words">{product.name}</span>
           </div>
 
           {/* Product Details */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-10 sm:mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 p-4 sm:p-6 lg:p-8">
               {/* Images */}
               <div>
                 <div className="relative aspect-square bg-light-gray rounded-xl overflow-hidden mb-4">
@@ -239,19 +239,19 @@ export default function ProductDetailPage() {
                   />
 
                   {product.isOnSale && discount > 0 && (
-                    <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow">
+                    <div className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow">
                       -{discount}%
                     </div>
                   )}
 
                   {product.isNew && (
-                    <div className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-full font-semibold shadow">
+                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-primary text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow">
                       NOUVEAU
                     </div>
                   )}
 
                   {!inStock && (
-                    <div className="absolute bottom-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow">
+                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow">
                       Rupture
                     </div>
                   )}
@@ -275,7 +275,7 @@ export default function ProductDetailPage() {
                           alt={`${product.name} ${idx + 1}`}
                           fill
                           className="object-cover"
-                          sizes="25vw"
+                          sizes="(max-width: 640px) 22vw, 96px"
                         />
                       </button>
                     ))}
@@ -292,24 +292,24 @@ export default function ProductDetailPage() {
                   {product.category.name}
                 </Link>
 
-                <h1 className="text-3xl font-bold text-dark mb-4 font-display">
+                <h1 className="text-2xl sm:text-3xl font-bold text-dark mb-3 sm:mb-4 font-display">
                   {product.name}
                 </h1>
 
                 {product.shortDesc && (
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-gray-600 mb-5 sm:mb-6">
                     {product.shortDesc}
                   </p>
                 )}
 
                 {/* Price */}
-                <div className="flex items-center gap-4 mb-6 flex-wrap">
-                  <span className="text-4xl font-bold text-primary">
+                <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6 flex-wrap">
+                  <span className="text-3xl sm:text-4xl font-bold text-primary">
                     {formatPrice(product.price)}
                   </span>
 
                   {product.comparePrice && product.isOnSale && (
-                    <span className="text-xl text-gray-500 line-through">
+                    <span className="text-lg sm:text-xl text-gray-500 line-through">
                       {formatPrice(product.comparePrice)}
                     </span>
                   )}
@@ -375,12 +375,12 @@ export default function ProductDetailPage() {
                 )}
 
                 {/* Buttons */}
-                <div className="flex gap-4 mb-8 flex-col sm:flex-row">
+                <div className="flex gap-3 sm:gap-4 mb-7 sm:mb-8 flex-col sm:flex-row">
                   <button
                     type="button"
                     onClick={addToCart}
                     disabled={!inStock || addingToCart}
-                    className="flex-1 bg-primary hover:bg-primary-dark text-white py-4 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-primary hover:bg-primary-dark text-white py-3.5 sm:py-4 px-5 sm:px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="w-5 h-5" />
 
@@ -395,14 +395,14 @@ export default function ProductDetailPage() {
                     type="button"
                     onClick={buyNow}
                     disabled={!inStock}
-                    className="flex-1 bg-dark hover:bg-dark-light text-white py-4 px-6 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-dark hover:bg-dark-light text-white py-3.5 sm:py-4 px-5 sm:px-6 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Acheter maintenant
                   </button>
                 </div>
 
                 {/* Features */}
-                <div className="grid grid-cols-2 gap-4 pt-6 border-t">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-6 border-t">
                   <div className="flex items-start gap-3">
                     <Truck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
@@ -456,7 +456,7 @@ export default function ProductDetailPage() {
 
             {/* Description */}
             {product.description && (
-              <div className="border-t p-6 lg:p-8">
+              <div className="border-t p-4 sm:p-6 lg:p-8">
                 <h2 className="text-2xl font-bold text-dark mb-4 font-display">
                   Description
                 </h2>
@@ -478,11 +478,11 @@ export default function ProductDetailPage() {
           {/* Similar */}
           {similarProducts.length > 0 && (
             <div>
-              <h2 className="text-3xl font-bold text-dark mb-6 font-display">
+              <h2 className="text-2xl sm:text-3xl font-bold text-dark mb-5 sm:mb-6 font-display">
                 Produits Similaires
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 content-start">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 content-start">
                 {similarProducts.map((prod) => (
                   <ProductCard
                     key={prod.id}

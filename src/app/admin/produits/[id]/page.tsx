@@ -252,9 +252,9 @@ export default function EditProduct() {
 
   if (error && !product) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 md:flex">
         <AdminSidebar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
             {error}
           </div>
@@ -264,20 +264,20 @@ export default function EditProduct() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 md:flex">
       <AdminSidebar />
       
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl">
           {/* Header */}
-          <div className="mb-8 flex justify-between items-start">
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Modifier le produit</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Modifier le produit</h1>
               <p className="text-gray-600 mt-1">{product?.name}</p>
             </div>
             <button
               onClick={handleDelete}
-              className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-red-600 text-white px-5 sm:px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
             >
               <Trash2 className="w-5 h-5" />
               Supprimer
@@ -298,7 +298,7 @@ export default function EditProduct() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Informations de base</h2>
               
               <div className="space-y-4">
@@ -352,7 +352,7 @@ export default function EditProduct() {
             </div>
 
             {/* Pricing */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Prix et inventaire</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -416,7 +416,7 @@ export default function EditProduct() {
             </div>
 
             {/* Images */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Images</h2>
               
               {/* Existing Images */}
@@ -486,7 +486,7 @@ export default function EditProduct() {
             </div>
 
             {/* Product Flags */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Options</h2>
               
               <div className="space-y-3">
@@ -537,11 +537,11 @@ export default function EditProduct() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center gap-2 bg-[#D4AF37] text-white px-6 py-3 rounded-lg hover:bg-[#C5A028] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto justify-center flex items-center gap-2 bg-[#D4AF37] text-white px-5 sm:px-6 py-3 rounded-lg hover:bg-[#C5A028] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-5 h-5" />
                 {saving ? 'Enregistrement...' : 'Enregistrer'}
@@ -549,7 +549,7 @@ export default function EditProduct() {
               <button
                 type="button"
                 onClick={() => router.push('/admin/produits')}
-                className="flex items-center gap-2 bg-white text-gray-700 border border-gray-300 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full sm:w-auto justify-center flex items-center gap-2 bg-white text-gray-700 border border-gray-300 px-5 sm:px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <X className="w-5 h-5" />
                 Annuler

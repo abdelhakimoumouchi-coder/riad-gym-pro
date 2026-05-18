@@ -166,10 +166,10 @@ function ProductsContent() {
       <Navbar />
 
       <div className="min-h-screen bg-light-gray">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold text-dark mb-2 font-display">
+          <div className="mb-5 sm:mb-6">
+            <h1 className="text-3xl sm:text-4xl font-bold text-dark mb-2 font-display">
               Nos Produits
             </h1>
 
@@ -179,7 +179,7 @@ function ProductsContent() {
           </div>
 
           {/* Barre de recherche */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <div className="relative max-w-xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
 
@@ -188,7 +188,7 @@ function ProductsContent() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher un produit..."
-                className="w-full pl-12 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm shadow-sm"
+                className="w-full pl-12 pr-10 py-2.5 sm:py-3 bg-white border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm shadow-sm"
               />
 
               {search && (
@@ -203,14 +203,14 @@ function ProductsContent() {
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Filters Sidebar */}
             <aside
               className={`lg:w-64 flex-shrink-0 ${
                 showFilters ? 'block' : 'hidden lg:block'
               }`}
             >
-              <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+              <div className="bg-white rounded-lg shadow-md p-5 sm:p-6 lg:sticky lg:top-24">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-dark flex items-center gap-2">
                     <Filter className="w-5 h-5" />
@@ -301,7 +301,7 @@ function ProductsContent() {
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden w-full bg-white rounded-lg shadow-md p-4 mb-6 flex items-center justify-center gap-2 text-dark font-medium"
+                className="lg:hidden w-full bg-white rounded-lg shadow-md p-3.5 mb-5 sm:mb-6 flex items-center justify-center gap-2 text-dark font-medium"
               >
                 <Filter className="w-5 h-5" />
                 Filtres
@@ -314,12 +314,12 @@ function ProductsContent() {
               </button>
 
               {loading ? (
-                <div className="flex justify-center items-center min-h-[400px]">
+                <div className="flex justify-center items-center min-h-[280px] sm:min-h-[360px]">
                   <Loading />
                 </div>
               ) : products.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 content-start">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 content-start">
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -370,9 +370,9 @@ function ProductsContent() {
                   )}
                 </>
               ) : (
-                <div className="bg-white rounded-lg shadow-md p-12 text-center">
+                <div className="bg-white rounded-lg shadow-md p-8 sm:p-12 text-center">
                   <div className="text-gray-400 mb-4">
-                    <Filter className="w-16 h-16 mx-auto" />
+                    <Filter className="w-12 h-12 sm:w-16 sm:h-16 mx-auto" />
                   </div>
 
                   <h3 className="text-xl font-semibold text-dark mb-2">

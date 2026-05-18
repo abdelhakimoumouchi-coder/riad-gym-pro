@@ -92,24 +92,24 @@ export default function HorsWilayaOrdersList() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 md:flex">
       <AdminSidebar />
 
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Commandes Hors Wilaya</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Commandes Hors Wilaya</h1>
             <p className="text-gray-600 mt-1">Commandes des wilayas hors Alger (avec reçu de versement)</p>
           </div>
-          <div className="bg-white border border-gray-200 px-4 py-3 rounded-lg shadow-sm">
+          <div className="bg-white border border-gray-200 px-4 py-3 rounded-lg shadow-sm self-start sm:self-auto">
             <div className="text-xs uppercase text-gray-500">Total</div>
             <div className="text-2xl font-semibold text-gray-900">{totalOrders}</div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -229,7 +229,7 @@ export default function HorsWilayaOrdersList() {
           </div>
 
           {totalPages > 1 && (
-            <div className="bg-white px-6 py-4 border-t border-gray-200">
+            <div className="bg-white px-4 sm:px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setPage(page - 1)}
@@ -261,7 +261,7 @@ export default function HorsWilayaOrdersList() {
           onClick={() => setReceiptModal(null)}
         >
           <div
-            className="relative bg-white rounded-xl shadow-2xl max-w-2xl max-h-[90vh] overflow-hidden"
+            className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b">

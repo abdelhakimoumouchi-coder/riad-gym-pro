@@ -64,31 +64,31 @@ export default function CartPage() {
     <>
       <Navbar />
       
-      <div className="min-h-screen bg-light-gray py-8">
+      <div className="min-h-screen bg-light-gray pt-24 pb-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-dark mb-8 font-display">Mon Panier</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-dark mb-6 sm:mb-8 font-display">Mon Panier</h1>
 
           {cart.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center">
+            <div className="bg-white rounded-lg shadow-md p-8 sm:p-12 text-center">
               <ShoppingBag className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-              <h2 className="text-2xl font-bold text-dark mb-4">Votre panier est vide</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-dark mb-4">Votre panier est vide</h2>
               <p className="text-gray-600 mb-8">
                 Découvrez nos produits et ajoutez-en à votre panier
               </p>
               <Link
                 href="/produits"
-                className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 sm:px-8 py-3 rounded-lg font-semibold transition-colors"
               >
                 Découvrir nos produits
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
                 {cart.map((item) => (
-                  <div key={item.id} className="bg-white rounded-lg shadow-md p-6">
+                  <div key={item.id} className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                     <div className="flex gap-4">
                       {/* Product Image */}
                       <Link href={`/produits/${item.slug}`} className="relative w-24 h-24 flex-shrink-0 bg-light-gray rounded-lg overflow-hidden">
@@ -107,12 +107,12 @@ export default function CartPage() {
                             {item.name}
                           </h3>
                         </Link>
-                        <div className="text-xl font-bold text-primary mb-4">
+                        <div className="text-lg sm:text-xl font-bold text-primary mb-4">
                           {formatPrice(item.price)}
                         </div>
 
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -133,7 +133,7 @@ export default function CartPage() {
 
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="ml-auto text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors"
+                            className="sm:ml-auto text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors"
                           >
                             <X className="w-5 h-5" />
                             <span className="text-sm">Retirer</span>
@@ -155,7 +155,7 @@ export default function CartPage() {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                <div className="bg-white rounded-lg shadow-md p-6 lg:sticky lg:top-24">
                   <h2 className="text-xl font-bold text-dark mb-6">Récapitulatif</h2>
 
                   <div className="space-y-3 mb-6 pb-6 border-b">

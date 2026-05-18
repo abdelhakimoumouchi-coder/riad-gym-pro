@@ -48,12 +48,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark via-dark-light to-dark-lighter flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-dark via-dark-light to-dark-lighter flex items-center justify-center px-4 py-8 sm:py-12">
       <div className="max-w-md w-full">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <Link href="/" className="inline-block">
-            <div className="text-3xl font-bold text-white mb-2">
+            <div className="text-2xl sm:text-3xl font-bold text-white mb-2">
               RIAD <span className="text-primary">GYM</span>
             </div>
           </Link>
@@ -61,7 +61,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8">
           <h1 className="text-2xl font-bold text-dark mb-6 text-center font-display">
             Connexion
           </h1>

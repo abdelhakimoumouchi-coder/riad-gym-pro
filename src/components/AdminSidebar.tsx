@@ -6,9 +6,7 @@ import {
   LayoutGrid,
   ShoppingCart,
   Tag,
-  Image as ImageIcon,
   LogOut,
-  List,
   Plus,
   Truck,
 } from 'lucide-react';
@@ -20,21 +18,21 @@ export default function AdminSidebar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <aside className="w-64 bg-dark min-h-screen text-white flex flex-col">
-      <div className="p-6 border-b border-dark-lighter">
-        <Link href="/admin" className="text-2xl font-bold text-primary">
+    <aside className="w-full md:w-64 bg-dark md:min-h-screen text-white flex flex-col">
+      <div className="p-4 sm:p-6 border-b border-dark-lighter">
+        <Link href="/admin" className="text-xl sm:text-2xl font-bold text-primary">
           RIAD GYM
         </Link>
         <p className="text-sm text-gray-400 mt-1">Administration</p>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-3 sm:p-4 space-y-2">
         {/* Produits */}
         <div className="space-y-1">
-          <div className="text-gray-400 text-xs font-semibold uppercase px-4">Produits</div>
+          <div className="text-gray-400 text-xs font-semibold uppercase px-3 sm:px-4">Produits</div>
           <Link
             href="/admin/produits"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
               isActive('/admin/produits') || pathname?.startsWith('/admin/produits/')
                 ? 'bg-primary text-white'
                 : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
@@ -45,7 +43,7 @@ export default function AdminSidebar() {
           </Link>
           <Link
             href="/admin/produits/nouveau"
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3 sm:px-4 py-2 rounded-lg transition-colors ${
               isActive('/admin/produits/nouveau')
                 ? 'bg-primary text-white'
                 : 'text-gray-400 hover:bg-dark-lighter hover:text-white'
@@ -58,10 +56,10 @@ export default function AdminSidebar() {
 
         {/* Commandes */}
         <div className="space-y-1">
-          <div className="text-gray-400 text-xs font-semibold uppercase px-4">Commandes</div>
+          <div className="text-gray-400 text-xs font-semibold uppercase px-3 sm:px-4">Commandes</div>
           <Link
             href="/admin/commandes"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
               isActive('/admin/commandes')
                 ? 'bg-primary text-white'
                 : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
@@ -72,7 +70,7 @@ export default function AdminSidebar() {
           </Link>
           <Link
             href="/admin/commandes-hors-wilaya"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
               isActive('/admin/commandes-hors-wilaya')
                 ? 'bg-primary text-white'
                 : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
@@ -86,7 +84,7 @@ export default function AdminSidebar() {
         {/* Catégories */}
         <Link
           href="/admin/categories"
-          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+          className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
             isActive('/admin/categories') || pathname?.startsWith('/admin/categories')
               ? 'bg-primary text-white'
               : 'text-gray-300 hover:bg-dark-lighter hover:text-white'
@@ -97,10 +95,10 @@ export default function AdminSidebar() {
         </Link>
       </nav>
 
-      <div className="p-4 border-t border-dark-lighter">
+      <div className="p-3 sm:p-4 border-t border-dark-lighter">
         <button
           onClick={() => signOut({ callbackUrl: '/' })}
-          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-dark-lighter hover:text-white transition-colors"
+          className="w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg text-gray-300 hover:bg-dark-lighter hover:text-white transition-colors"
         >
           <LogOut className="w-5 h-5" />
           <span>Déconnexion</span>

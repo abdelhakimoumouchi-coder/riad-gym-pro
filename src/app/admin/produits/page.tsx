@@ -125,19 +125,19 @@ export default function ProductsList() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 md:flex">
       <AdminSidebar />
       
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Produits</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Produits</h1>
             <p className="text-gray-600 mt-1">Gérez vos produits</p>
           </div>
           <button
             onClick={() => router.push('/admin/produits/nouveau')}
-            className="flex items-center gap-2 bg-[#D4AF37] text-white px-6 py-3 rounded-lg hover:bg-[#C5A028] transition-colors"
+            className="w-full sm:w-auto justify-center flex items-center gap-2 bg-[#D4AF37] text-white px-5 sm:px-6 py-3 rounded-lg hover:bg-[#C5A028] transition-colors"
           >
             <Plus className="w-5 h-5" />
             Nouveau produit
@@ -145,7 +145,7 @@ export default function ProductsList() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
@@ -288,7 +288,7 @@ export default function ProductsList() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="bg-white px-6 py-4 border-t border-gray-200">
+            <div className="bg-white px-4 sm:px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setPage(page - 1)}
