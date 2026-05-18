@@ -203,9 +203,9 @@ export default async function HomePage() {
 
       {/* Promotions */}
       {saleProducts.length > 0 && (
-        <section className="py-8 sm:py-12 lg:py-16 bg-white">
+        <section className="pt-5 pb-8 sm:py-12 lg:py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4 mb-3 sm:mb-8">
               <div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-dark mb-2 font-display">Promotions</h3>
                 <p className="text-gray-600">Profitez de nos meilleures offres</p>
